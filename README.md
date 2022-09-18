@@ -2,6 +2,8 @@
 
 Run code in the cloud. Store the results. Get alerted if you want.
 
+Based on [InfluxDB](https://github.com/influxdata/influxdb), [Bull](https://github.com/OptimalBits/bull), and [Express.js](https://github.com/expressjs/express).
+
 NOTE: This should by no means be used in production. It's just a little tool I wrote on a Sunday afternoon.
 
 Schedulr is primarily useful for web scraping, although it can be used anywhere you may need to get a value and store it

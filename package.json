@@ -1,0 +1,23 @@
+{
+  "name": "schedulr",
+  "version": "1.0.0",
+  "description": "Run code in the cloud. Store the results. Get alerted if you want.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexose/schedulr.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexose/schedulr/issues"
+  },
+  "homepage": "https://github.com/alexose/schedulr#readme",
+  "dependencies": {
+    "express": "^4.18.1",
+    "influx": "^5.9.3"
+  }
+}
