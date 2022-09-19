@@ -6,7 +6,12 @@ const Queue = require("bull");
 const jobQueue = new Queue("jobs");
 const path = require("path");
 
+jobQueue.empty();
 jobQueue.process(path.join(__dirname, "./processor.js"));
+
+jobQueue.on("failed", async function (job, err) {
+    console.log(err);
+});
 
 app.use(express.json());
 
@@ -20,19 +25,21 @@ app.get("/jobs", (req, res) => {
 
 app.post("/jobs", (req, res) => {
     const obj = req.body;
-    let repeat = null;
-
-    if (obj.repeat) {
-        repeat = obj.repeat;
-        delete obj.repeat;
-    }
+    let repeat = undefined;
 
     if (!obj.code) {
         res.status(400).send("code field is required");
         return;
     }
 
-    jobQueue.add(obj, {repeat: {cron: repeat}});
+    if (obj.repeat) {
+        repeat = obj.repeat;
+        delete obj.repeat;
+        jobQueue.add(obj, {repeat: {cron: repeat}});
+    } else {
+        console.log("Adding job with no repeat...");
+        jobQueue.add(obj);
+    }
 
     res.send("jobz");
 });
