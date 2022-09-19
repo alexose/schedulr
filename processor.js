@@ -3,33 +3,24 @@
 const {NodeVM} = require("vm2");
 const vm = new NodeVM({
     require: {
-        root: "./node_modules",
+        external: {
+            modules: ["puppeteer"],
+        },
+        root: [__dirname],
+        wrapper: "none",
     },
 });
 
-module.exports = function (job, done) {
+const code = require("fs").readFileSync("example.txt", "utf-8");
+
+module.exports = async function (job, done) {
     console.log(job.data);
     console.log("doing job! " + job.data.code);
 
     //const func = vm.run("module.exports = async () => {" + job.data.code + "}");
 
-    const str = `
-        const browser = await puppeteer.launch();
-        const page = await browser.newPage();
-        await page.goto('https://news.ycombinator.com/')
-    `;
+    const result = await vm.run(code, "node_modules")();
+    console.log(result);
 
-    console.log(func());
-
-    // call done when finished
-    //done();
-
-    // or give an error if error
-    // done(new Error("error transcoding"));
-
-    // or pass it a result
-
-    // If the job throws an unhandled exception it is also handled correctly
-    //throw new Error("some unexpected error");
-    return Promise.resolve(result);
+    done();
 };
