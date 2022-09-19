@@ -1,6 +1,6 @@
 # Schedulr
 
-Run code in the cloud. Store the results. Get alerted if you want.
+Run code in the cloud. Store the results. Get alerted if you want. Designed to run on a single micro instance.
 
 Based on [InfluxDB](https://github.com/influxdata/influxdb), [Bull](https://github.com/OptimalBits/bull), and [Express.js](https://github.com/expressjs/express).
 
