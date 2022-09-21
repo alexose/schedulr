@@ -11,15 +11,12 @@ const vm = new NodeVM({
     },
 });
 
-const code = require("fs").readFileSync("example.txt", "utf-8");
-
 module.exports = async function (job, done) {
     console.log(job.data);
-    console.log("doing job! " + job.data.code);
+    console.log("doing job! " + typeof job.data.code);
+    const func = `module.exports = async () => {${job.data.code}}`;
 
-    //const func = vm.run("module.exports = async () => {" + job.data.code + "}");
-
-    const result = await vm.run(code, "node_modules")();
+    const result = await vm.run(func, "node_modules")();
     console.log(result);
 
     done();

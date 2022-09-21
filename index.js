@@ -26,6 +26,7 @@ app.get("/jobs", (req, res) => {
 app.post("/jobs", (req, res) => {
     const obj = req.body;
     let repeat = undefined;
+    console.log(obj.code);
 
     if (!obj.code) {
         res.status(400).send("code field is required");
