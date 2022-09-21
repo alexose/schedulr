@@ -12,11 +12,8 @@ const vm = new NodeVM({
 });
 
 module.exports = async function (job, done) {
-    console.log(job.data);
     console.log("doing job! " + typeof job.data.code);
-    const func = `module.exports = async () => {${job.data.code}}`;
-
-    const result = await vm.run(func, "node_modules")();
+    const result = await vm.run(job.data.code, "node_modules")();
     console.log(result);
 
     done();

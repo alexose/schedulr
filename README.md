@@ -72,3 +72,26 @@ You can put a job on a hold like so:
 
 Remove a job and all data associated with it.
 ````
+
+### Examples
+
+    const puppeteer = require("puppeteer");
+
+    module.exports = async function () {
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
+        await page.goto("https://news.ycombinator.com/");
+        let urls = await page.evaluate(() => {
+            let results = [];
+            let items = document.querySelectorAll("a.titlelink");
+            items.forEach(item => {
+                results.push({
+                    url: item.getAttribute("href"),
+                    text: item.innerText,
+                });
+            });
+            return results;
+        });
+        browser.close();
+        return urls;
+    }
