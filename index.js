@@ -44,7 +44,7 @@ app.post("/jobs", async (req, res) => {
         repeat = obj.repeat;
         delete obj.repeat;
         console.log(`Adding job with repeat ${repeat}...`);
-        jobQueue.add(obj, {repeat: {cron: repeat}});
+        jobQueue.add(obj, {jobId: "repeaty-" + Date.now(), repeat: {cron: repeat}});
     } else {
         console.log("Adding single job with no repeat...");
         jobQueue.add(obj);
