@@ -33,18 +33,18 @@ app.get("/jobs", async (req, res) => {
 
 app.post("/jobs", async (req, res) => {
     const obj = req.body;
-    let repeat = undefined;
+    let every = undefined;
 
     if (!obj.code) {
         res.status(400).send("code field is required");
         return;
     }
 
-    if (obj.repeat) {
-        repeat = obj.repeat;
-        delete obj.repeat;
-        console.log(`Adding job with repeat ${repeat}...`);
-        jobQueue.add(obj, {jobId: "repeaty-" + Date.now(), repeat: {cron: repeat}});
+    if (obj.every) {
+        every = obj.every;
+        delete obj.every;
+        console.log(`Adding job with repeat every ${every}...`);
+        jobQueue.add(obj, {jobId: "every-" + Date.now(), repeat: {every: every * 1000}});
     } else {
         console.log("Adding single job with no repeat...");
         jobQueue.add(obj);
