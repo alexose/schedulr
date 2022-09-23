@@ -14,7 +14,7 @@
                 if (this.every) {
                     obj.every = this.every;
                 }
-                const response = await fetch("/jobs", {
+                const response = await fetch("/api/jobs", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -33,9 +33,20 @@
             };
         },
         async mounted() {
-            const response = await fetch("/jobs");
+            const response = await fetch("/api/jobs");
             const text = await response.text();
             console.log(text);
+
+            const ws = new WebSocket("ws://localhost");
+            ws.onmessage = e => {
+                let obj;
+                try {
+                    obj = JSON.parse(e.data);
+                } catch (e) {
+                    console.error("Couldn't parse data: " + e);
+                }
+                console.log(obj);
+            };
         },
     };
 </script>

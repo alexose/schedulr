@@ -30,7 +30,8 @@
         "vm2": "^3.9.11",
         "vue": "^3.2.13",
         "vue3-ace-editor": "^2.2.2",
-        "vuejs-ace-editor": "^1.0.1"
+        "vuejs-ace-editor": "^1.0.1",
+        "ws": "^8.9.0"
     },
     "devDependencies": {
         "@babel/core": "^7.12.16",

@@ -5,6 +5,8 @@ const config = require("./config.js");
 const Queue = require("bull");
 const jobQueue = new Queue("jobs");
 const path = require("path");
+const WebSocket = require("ws");
+const http = require("http");
 
 const knex = require("knex")({
     client: "sqlite3",
@@ -26,6 +28,22 @@ multi.del(jobQueue.toKey('repeat'));
 multi.exec();
 */
 
+const server = http.createServer(app);
+const wss = new WebSocket.Server({server});
+let ws;
+
+wss.on("connection", _ws => {
+    ws = _ws;
+
+    ws.on("message", message => {
+        console.log(`received: %s`, message);
+        ws.send(`Hello, you sent -> ${message}`);
+    });
+
+    ws.send(`Hi there, I am a WebSocket server`);
+    console.log("connected");
+});
+
 jobQueue.process(path.join(__dirname, "./processor.js"));
 
 jobQueue.on("failed", async function (job, err) {
@@ -34,16 +52,16 @@ jobQueue.on("failed", async function (job, err) {
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/api/", (req, res) => {
     res.send("oh hi");
 });
 
-app.get("/jobs", async (req, res) => {
+app.get("/api/jobs", async (req, res) => {
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);
 });
 
-app.post("/jobs", async (req, res) => {
+app.post("/api/jobs", async (req, res) => {
     const obj = req.body;
     let every = undefined;
 
@@ -66,6 +84,6 @@ app.post("/jobs", async (req, res) => {
     res.send(jobs);
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Schedulr listening on port ${port}`);
 });
