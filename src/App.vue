@@ -25,6 +25,11 @@
                 const text = await response.text();
                 console.log(text);
             },
+            async deleteJob(key) {
+                await fetch("/api/jobs/" + key, {
+                    method: "DELETE",
+                });
+            },
         },
         data() {
             return {
@@ -44,6 +49,7 @@
                 } catch (e) {
                     console.error("Couldn't parse data: " + e);
                 }
+                this.jobs = obj;
                 console.log(obj);
             };
         },
@@ -53,6 +59,13 @@
 <template>
     <div>
         <h1>Schedulr</h1>
+    </div>
+    <div class="job-list">
+        <ul>
+            <li v-for="job in jobs" :key="job.id">
+                {{ job.id }} <button class="job-list-delete" @click="deleteJob(job.key)">X</button>
+            </li>
+        </ul>
     </div>
     <div class="job-form">
         <label>New Job</label>

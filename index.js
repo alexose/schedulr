@@ -60,7 +60,8 @@ app.post("/api/jobs", async (req, res) => {
         every = obj.every;
         delete obj.every;
         console.log(`Adding job with repeat every ${every}...`);
-        jobQueue.add(obj, {jobId: "every-" + Date.now(), repeat: {every: every * 1000}});
+        await jobQueue.add(obj, {jobId: "every-" + Date.now(), repeat: {every: every * 1000}});
+        broadcastJobs();
     } else {
         console.log("Adding single job with no repeat...");
         jobQueue.add(obj);
@@ -69,6 +70,18 @@ app.post("/api/jobs", async (req, res) => {
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);
 });
+
+app.delete("/api/jobs/:key", async (req, res) => {
+    const {key} = req.params;
+    const result = await jobQueue.removeRepeatableByKey(key);
+    await broadcastJobs();
+    res.send(result);
+});
+
+async function broadcastJobs() {
+    const jobs = await jobQueue.getRepeatableJobs();
+    broadcast(jobs);
+}
 
 const wss = new WebSocket.Server({server, path: "/api"});
 wss.on("connection", ws => {
