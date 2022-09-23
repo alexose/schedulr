@@ -13,7 +13,19 @@ const knex = require("knex")({
     },
 });
 
-jobQueue.empty();
+//jobQueue.empty();
+
+/*
+jobQueue.clean(0, "delayed");
+jobQueue.clean(0, "wait");
+jobQueue.clean(0, "active");
+jobQueue.clean(0, "completed");
+jobQueue.clean(0, "failed");
+let multi = jobQueue.multi();
+multi.del(jobQueue.toKey('repeat'));
+multi.exec();
+*/
+
 jobQueue.process(path.join(__dirname, "./processor.js"));
 
 jobQueue.on("failed", async function (job, err) {
