@@ -30,14 +30,13 @@
             return {
                 content: "",
                 every: "5",
+                jobs: [],
             };
         },
         async mounted() {
             const response = await fetch("/api/jobs");
-            const text = await response.text();
-            console.log(text);
-
-            const ws = new WebSocket("ws://localhost");
+            this.jobs = await response.json();
+            const ws = new WebSocket("ws://localhost:8081/api");
             ws.onmessage = e => {
                 let obj;
                 try {

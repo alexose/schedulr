@@ -8,10 +8,6 @@ module.exports = defineConfig({
             "/api": {
                 target: `http://${host}:${port}/`,
                 secure: false,
-            },
-            "/socket": {
-                target: `http://${host}:${port}/`,
-                secure: false,
                 ws: true,
                 changeOrigin: true,
             },

@@ -29,20 +29,6 @@ multi.exec();
 */
 
 const server = http.createServer(app);
-const wss = new WebSocket.Server({server});
-let ws;
-
-wss.on("connection", _ws => {
-    ws = _ws;
-
-    ws.on("message", message => {
-        console.log(`received: %s`, message);
-        ws.send(`Hello, you sent -> ${message}`);
-    });
-
-    ws.send(`Hi there, I am a WebSocket server`);
-    console.log("connected");
-});
 
 jobQueue.process(path.join(__dirname, "./processor.js"));
 
@@ -83,6 +69,23 @@ app.post("/api/jobs", async (req, res) => {
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);
 });
+
+const wss = new WebSocket.Server({server, path: "/api"});
+wss.on("connection", ws => {
+    ws.on("message", message => {
+        console.log(`received: %s`, message);
+        ws.send(`Hello, you sent -> ${message}`);
+    });
+    console.log("connected");
+});
+
+function broadcast(obj) {
+    wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(obj));
+        }
+    });
+}
 
 server.listen(port, () => {
     console.log(`Schedulr listening on port ${port}`);
