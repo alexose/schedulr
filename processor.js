@@ -14,7 +14,8 @@ const vm = new NodeVM({
 module.exports = async function (job, done) {
     console.log("doing job! " + typeof job.data.code);
     const result = await vm.run(job.data.code, "node_modules")();
-    console.log(result);
+    console.log(job.id);
 
+    // Save job results
     done();
 };

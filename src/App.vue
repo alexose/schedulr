@@ -11,6 +11,9 @@
                 const obj = {
                     code: this.content,
                 };
+                if (this.repeat) {
+                    obj.repeat = this.repeat;
+                }
                 const response = await fetch("/jobs", {
                     method: "POST",
                     headers: {
@@ -26,6 +29,7 @@
         data() {
             return {
                 content: "",
+                repeat: "*/5 * * * *",
             };
         },
         async mounted() {
@@ -45,7 +49,7 @@
         <div class="job-form-option editor">
             <VAceEditor v-model:value="content" lang="html" theme="chrome" style="height: 300px" />
         </div>
-        <div class="job-form-option"><label>Repeat</label><input type="text" name="repeat" value="*/5 * * * *" /></div>
+        <div class="job-form-option"><label>Repeat</label><input type="text" v-model="repeat" name="repeat" /></div>
         <button type="submit" @click="addJob">Add Job</button>
     </div>
 </template>
