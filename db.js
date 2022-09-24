@@ -22,7 +22,7 @@ knex.schema.hasTable("results").then(function (exists) {
     if (!exists) {
         return knex.schema.createTable("results", function (t) {
             t.increments("id").primary();
-            t.json("data");
+            t.string("data");
             t.string("job_id");
             t.datetime("started");
             t.datetime("finished");
@@ -31,16 +31,33 @@ knex.schema.hasTable("results").then(function (exists) {
 });
 
 module.exports = {
-    writeResult(job_id, started, data) {
-        knex("results").insert({
-            data,
-            job_id,
-            started,
-            finished: new Date(),
-        });
-        console.log("inserted results");
+    async writeResult(job_id, started, data) {
+        const result = knex("results")
+            .insert({
+                data: JSON.stringify(data),
+                job_id,
+                started,
+                finished: new Date(),
+            })
+            .then(() => {
+                console.log("inserted data");
+            })
+            .catch(e => {
+                console.error(e);
+            });
     },
     async getResults(job_id) {
-        return await knex("results").where({job_id}).select();
+        let obj;
+        if (job_id) {
+            obj = await knex("results").where({job_id}).select();
+        } else {
+            obj = await knex("results").select();
+        }
+        return obj.map(d => {
+            return {
+                ...d,
+                data: JSON.parse(d.data),
+            };
+        });
     },
 };
