@@ -1,10 +1,12 @@
 <script>
     import {VAceEditor} from "vue3-ace-editor";
+    import {RouterView} from "vue-router";
 
     export default {
         name: "App",
         components: {
             VAceEditor,
+            RouterView,
         },
         methods: {
             async addJob() {
@@ -65,6 +67,7 @@
     <div>
         <h1>Schedulr</h1>
     </div>
+    <RouterView></RouterView>
     <div class="job-list">
         <ul>
             <li v-for="job in jobs" :key="job.id">
