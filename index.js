@@ -7,13 +7,7 @@ const jobQueue = new Queue("jobs");
 const path = require("path");
 const WebSocket = require("ws");
 const http = require("http");
-
-const knex = require("knex")({
-    client: "sqlite3",
-    connection: {
-        filename: "./db.sqlite",
-    },
-});
+const db = require("./db");
 
 //jobQueue.empty();
 
@@ -27,7 +21,6 @@ let multi = jobQueue.multi();
 multi.del(jobQueue.toKey('repeat'));
 multi.exec();
 */
-
 const server = http.createServer(app);
 
 jobQueue.process(path.join(__dirname, "./processor.js"));
@@ -69,6 +62,16 @@ app.post("/api/jobs", async (req, res) => {
 
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);
+});
+
+app.get("/api/results", async (req, res) => {
+    const results = await db.getResults();
+    res.send(results);
+});
+
+app.get("/api/results/:id", async (req, res) => {
+    const results = await db.getResults(req.params.id);
+    res.send(results);
 });
 
 app.delete("/api/jobs/:key", async (req, res) => {
