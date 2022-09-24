@@ -36,11 +36,16 @@
                 content: "",
                 every: "5",
                 jobs: [],
+                results: [],
             };
         },
         async mounted() {
-            const response = await fetch("/api/jobs");
-            this.jobs = await response.json();
+            const jobsResponse = await fetch("/api/jobs");
+            this.jobs = await jobsResponse.json();
+
+            const resultsResponse = await fetch("/api/results");
+            this.results = await resultsResponse.json();
+
             const ws = new WebSocket("ws://localhost:8081/api");
             ws.onmessage = e => {
                 let obj;
@@ -64,6 +69,13 @@
         <ul>
             <li v-for="job in jobs" :key="job.id">
                 {{ job.id }} <button class="job-list-delete" @click="deleteJob(job.key)">X</button>
+            </li>
+        </ul>
+    </div>
+    <div class="result-list">
+        <ul>
+            <li v-for="result in results" :key="result.id">
+                {{ result.data }} <button class="result-list-delete" @click="deleteResult(result.id)">X</button>
             </li>
         </ul>
     </div>
