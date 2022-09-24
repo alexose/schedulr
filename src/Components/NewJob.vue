@@ -1,5 +1,6 @@
 <script>
     import {VAceEditor} from "vue3-ace-editor";
+    import ExampleCode from "../example-code.js";
 
     export default {
         name: "App",
@@ -10,6 +11,7 @@
             async addJob() {
                 const obj = {
                     code: this.content,
+                    name: this.name || this.placeholder,
                 };
                 if (this.every) {
                     obj.every = this.every;
@@ -26,11 +28,23 @@
                 console.log(text);
                 this.jobForm = false;
             },
+            makeRandomHash() {
+                // via https://stackoverflow.com/questions/1349404
+                let result = "";
+                const length = 5;
+                const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                const charactersLength = characters.length;
+                for (var i = 0; i < length; i++) {
+                    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                }
+                return result;
+            },
         },
         data() {
             return {
                 name: "",
-                content: "",
+                placeholder: "Job-" + this.makeRandomHash(),
+                content: ExampleCode,
                 every: "5",
                 jobForm: false,
             };
@@ -43,7 +57,9 @@
         <button v-if="!jobForm" @click="this.jobForm = true">+ Add a new job</button>
     </div>
     <div v-if="jobForm" class="job-form">
-        <div class="job-form-option"><label>Name</label><input type="text" v-model="name" name="name" /></div>
+        <div class="job-form-option">
+            <label>Name</label><input type="text" :placeholder="placeholder" v-model="name" name="name" />
+        </div>
         <div class="job-form-option">
             <label>Code</label>
             <div class="editor">
