@@ -14,10 +14,11 @@ const vm = new NodeVM({
 
 module.exports = async function (job, done) {
     const started = new Date();
-    console.log("doing job " + typeof job.id);
+    const {jobId, count} = job.opts.repeat;
+    console.log("Running job " + jobId);
     const result = await vm.run(job.data.code, "node_modules")();
 
     // Save job results
-    db.writeResult(job.id, started, result);
+    db.writeResult(jobId, started, count, result);
     done();
 };

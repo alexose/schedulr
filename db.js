@@ -24,6 +24,7 @@ knex.schema.hasTable("results").then(function (exists) {
             t.increments("id").primary();
             t.string("data");
             t.string("job_id");
+            t.integer("count");
             t.datetime("started");
             t.datetime("finished");
         });
@@ -31,16 +32,21 @@ knex.schema.hasTable("results").then(function (exists) {
 });
 
 module.exports = {
-    async writeResult(job_id, started, data) {
+    async writeResult(job_id, started, count, obj) {
+        const data = JSON.stringify(obj);
+        const finished = new Date();
         const result = knex("results")
             .insert({
-                data: JSON.stringify(data),
+                data,
                 job_id,
+                count,
                 started,
-                finished: new Date(),
+                finished,
             })
             .then(() => {
-                console.log("inserted data");
+                const trunc = data.length > 80 ? data.substr(0, 80) + "..." : data;
+                const seconds = Math.round(((finished - started) / 1000) * 100) / 100;
+                console.log(`${job_id}: Got ${trunc} in ${seconds} seconds.`);
             })
             .catch(e => {
                 console.error(e);

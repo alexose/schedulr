@@ -19,7 +19,7 @@ module.exports = async function () {
     const page = await browser.newPage();
     await page.goto("https://www.amazon.com/dp/B07TC2BK1X");
     let price = await page.evaluate(() => {
-        return ['.a-price-whole', '.a-price-decimal'].map((d) => {
+        return ['.a-price-whole', '.a-price-fraction'].map((d) => {
             return parseInt(document.querySelectorAll(d)[0].innerText);
         }).join('.');
     });
