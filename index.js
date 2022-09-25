@@ -5,9 +5,10 @@ const config = require("./config.js");
 const Queue = require("bull");
 const jobQueue = new Queue("jobs");
 const path = require("path");
-const WebSocket = require("ws");
 const http = require("http");
 const db = require("./db");
+const socket = require("./socket");
+const broadcast = socket.broadcast;
 
 /*
 jobQueue.empty();
@@ -27,6 +28,21 @@ jobQueue.process(path.join(__dirname, "./processor.js"));
 
 jobQueue.on("failed", async function (job, err) {
     console.log(err);
+});
+
+jobQueue.on("active", async function (job, err) {
+    const data = job?.opts?.repeat?.jobId;
+    broadcast({event: "job_start", data});
+});
+
+jobQueue.on("failed", function (job, err) {
+    const data = job?.opts?.repeat?.jobId;
+    broadcast({event: "job_failed", data});
+});
+
+jobQueue.on("completed", function (job, err) {
+    const data = job?.opts?.repeat?.jobId;
+    broadcast({event: "job_completed", data});
 });
 
 app.use(express.json());
@@ -87,25 +103,10 @@ app.delete("/api/jobs/:key", async (req, res) => {
 
 async function broadcastJobs() {
     const jobs = await jobQueue.getRepeatableJobs();
-    broadcast(jobs);
+    broadcast({event: "jobs_list", data: jobs});
 }
 
-const wss = new WebSocket.Server({server, path: "/api"});
-wss.on("connection", ws => {
-    ws.on("message", message => {
-        console.log(`received: %s`, message);
-        ws.send(`Hello, you sent -> ${message}`);
-    });
-    console.log("connected");
-});
-
-function broadcast(obj) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(obj));
-        }
-    });
-}
+socket.init(server);
 
 server.listen(port, () => {
     console.log(`Schedulr listening on port ${port}`);

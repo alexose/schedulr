@@ -21,11 +21,20 @@
                 let obj;
                 try {
                     obj = JSON.parse(e.data);
+                    const event = obj.event;
+                    console.log(event);
+                    if (event === "job_list") {
+                        this.jobs = obj.data;
+                        console.log(obj.data);
+                    } else if (event === "job_start") {
+                        const jobId = obj.data;
+                        const job = this.jobs.find(d => d.id === jobId);
+
+                        console.log(jobId, job);
+                    }
                 } catch (e) {
                     console.error("Couldn't parse data: " + e);
                 }
-                this.jobs = obj;
-                console.log(obj);
             };
         },
     };

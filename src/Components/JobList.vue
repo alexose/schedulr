@@ -1,10 +1,12 @@
 <script>
     import {RouterLink} from "vue-router";
+    import SimpleSpinner from "./SimpleSpinner.vue";
 
     export default {
         name: "JobList",
         components: {
             RouterLink,
+            SimpleSpinner,
         },
         props: {
             jobs: Array,
@@ -35,10 +37,12 @@
                 <td>
                     <RouterLink :to="'/jobs/' + job.id">{{ job.id }}</RouterLink>
                 </td>
-                <td>{{ job.lastResult.count }}</td>
-                <td>{{ new Date(job.lastResult.finished).toLocaleDateString() }}</td>
-                <td>{{ job.lastResult.data }}</td>
-                <td><button class="job-list-delete" @click="deleteJob(job.key)">X</button></td>
+                <td>{{ job.lastResult?.count }}</td>
+                <td>{{ new Date(job.lastResult?.finished).toLocaleDateString() }}</td>
+                <td>{{ job.lastResult?.data }}</td>
+                <td>
+                    <button class="job-list-delete" @click="deleteJob(job.key)">X</button><SimpleSpinner v-if="true" />
+                </td>
             </tr>
         </tbody>
     </table>
