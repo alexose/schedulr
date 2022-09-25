@@ -41,7 +41,8 @@
             <th class="results-table-time">Time</th>
             <th>Value</th>
             <th>Change</th>
-            <th>Run Time</th>
+            <th class="results-table-error">Error</th>
+            <th class="results-table-runtime">Run Time</th>
         </thead>
         <tbody>
             <tr v-for="(result, idx) in results" :key="result.id">
@@ -49,6 +50,9 @@
                 <td>{{ new Date(result.finished).toLocaleTimeString() }}</td>
                 <td>{{ result.data }}</td>
                 <td>{{ changes[idx] }}</td>
+                <td>
+                    <div class="error-text">{{ result.error }}</div>
+                </td>
                 <td>{{ Math.round(((result.finished - result.started) / 1000) * 100) / 100 }}s</td>
             </tr>
         </tbody>
@@ -62,14 +66,22 @@
         border-spacing: 0;
     }
     .results-table tr:nth-child(odd) {
-        background: #eaeaea;
+        background: #f3f3f3;
     }
     .results-table td,
     .results-table th {
-        padding: 5px;
+        padding: 10px 5px;
     }
     .results-table-date,
-    .results-table-time {
+    .results-table-time,
+    .results-table-runtime {
         width: 120px;
+    }
+
+    .error-text {
+        max-width: 460px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 </style>

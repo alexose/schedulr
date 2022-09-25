@@ -23,6 +23,7 @@ knex.schema.hasTable("results").then(function (exists) {
         return knex.schema.createTable("results", function (t) {
             t.increments("id").primary();
             t.string("data");
+            t.string("error");
             t.string("job_id");
             t.integer("count");
             t.datetime("started");
@@ -32,21 +33,23 @@ knex.schema.hasTable("results").then(function (exists) {
 });
 
 module.exports = {
-    async writeResult(job_id, started, count, obj) {
-        const data = JSON.stringify(obj);
+    async writeResult(job_id, started, count, data, error) {
         const finished = new Date();
         const result = knex("results")
             .insert({
-                data,
+                data: data === null ? null : JSON.stringify(data),
+                error,
                 job_id,
                 count,
                 started,
                 finished,
             })
             .then(() => {
-                const trunc = data.length > 80 ? data.substr(0, 80) + "..." : data;
-                const seconds = Math.round(((finished - started) / 1000) * 100) / 100;
-                console.log(`${job_id}: Got ${trunc} in ${seconds} seconds.`);
+                if (!error) {
+                    const trunc = data.length > 80 ? data.substr(0, 80) + "..." : data;
+                    const seconds = Math.round(((finished - started) / 1000) * 100) / 100;
+                    console.log(`${job_id}: Got ${trunc} in ${seconds} seconds.`);
+                }
             })
             .catch(e => {
                 console.error(e);
