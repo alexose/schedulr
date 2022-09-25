@@ -22,15 +22,21 @@
                 try {
                     obj = JSON.parse(e.data);
                     const event = obj.event;
-                    console.log(event);
                     if (event === "job_list") {
                         this.jobs = obj.data;
                         console.log(obj.data);
                     } else if (event === "job_start") {
                         const jobId = obj.data;
                         const job = this.jobs.find(d => d.id === jobId);
-
-                        console.log(jobId, job);
+                        job.status = "running";
+                    } else if (event === "job_failed") {
+                        const jobId = obj.data;
+                        const job = this.jobs.find(d => d.id === jobId);
+                        job.status = "failed";
+                    } else if (event === "job_completed") {
+                        const jobId = obj.data;
+                        const job = this.jobs.find(d => d.id === jobId);
+                        job.status = undefined;
                     }
                 } catch (e) {
                     console.error("Couldn't parse data: " + e);

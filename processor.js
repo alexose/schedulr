@@ -16,13 +16,12 @@ module.exports = async function (job, done) {
     const started = new Date();
     const {jobId, count} = job.opts.repeat;
     console.log("Running job " + jobId);
-
     try {
         const result = await vm.run(job.data.code, "node_modules")();
-        db.writeResult(jobId, started, count, result);
+        await db.writeResult(jobId, started, count, result);
+        done(null, result);
     } catch (error) {
-        db.writeResult(jobId, started, count, null, error);
+        await db.writeResult(jobId, started, count, null, error);
+        done(error);
     }
-
-    done();
 };

@@ -40,8 +40,14 @@
                 <td>{{ job.lastResult?.count }}</td>
                 <td>{{ new Date(job.lastResult?.finished).toLocaleDateString() }}</td>
                 <td>{{ job.lastResult?.data }}</td>
-                <td>
-                    <button class="job-list-delete" @click="deleteJob(job.key)">X</button><SimpleSpinner v-if="true" />
+                <td class="job-list-controls">
+                    <button class="job-list-delete" @click="deleteJob(job.key)">X</button>
+                    <div class="status" :class="{hidden: !job.status}">
+                        <div class="status" v-if="job.status === 'running'">
+                            <SimpleSpinner />
+                        </div>
+                        <div class="error" v-if="job.status === 'failed'">!</div>
+                    </div>
                 </td>
             </tr>
         </tbody>
@@ -58,5 +64,22 @@
         list-style: none;
     }
     .job-list ul li {
+    }
+    .job-list-controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .job-list-controls .hidden {
+        opacity: 0;
+    }
+    .status {
+        width: 40px;
+        display: flex;
+        justify-content: center;
+    }
+    .error {
+        font-weight: 800;
+        color: red;
     }
 </style>
