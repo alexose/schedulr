@@ -66,4 +66,11 @@ module.exports = {
             };
         });
     },
+    async augmentResults(jobs) {
+        // TODO: replace this with some cool INNER JOIN stuff
+        for (let i = 0; i < jobs.length; i++) {
+            jobs[i].lastResult = await knex("results").where({job_id: jobs[i].id}).orderBy("id", "desc").first();
+        }
+        return jobs;
+    },
 };

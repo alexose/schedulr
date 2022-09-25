@@ -36,7 +36,12 @@ app.get("/api/", (req, res) => {
 });
 
 app.get("/api/jobs", async (req, res) => {
-    const jobs = await jobQueue.getRepeatableJobs();
+    // Get jobs out of bull/redis
+    let jobs = await jobQueue.getRepeatableJobs();
+
+    // Get last results out of sqlite
+    jobs = await db.augmentResults(jobs);
+
     res.send(jobs);
 });
 

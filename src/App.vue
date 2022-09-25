@@ -14,6 +14,7 @@
         async mounted() {
             const jobsResponse = await fetch("/api/jobs");
             this.jobs = await jobsResponse.json();
+            console.log(this.jobs);
 
             const ws = new WebSocket("ws://localhost:8081/api");
             ws.onmessage = e => {

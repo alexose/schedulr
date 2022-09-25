@@ -19,15 +19,18 @@
         <thead>
             <tr>
                 <th>Name</th>
-                <th>Run</th>
+                <th>Run Count</th>
                 <th>Last Run</th>
+                <th>Last Result</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="job in jobs" :key="job.id">
                 <td>{{ job.id }}</td>
-                <td></td>
-                <td></td>
+                <td>{{ job.lastResult.count }}</td>
+                <td>{{ new Date(job.lastResult.finished).toLocaleDateString() }}</td>
+                <td>{{ job.lastResult.data }}</td>
                 <td><button class="job-list-delete" @click="deleteJob(job.key)">X</button></td>
             </tr>
         </tbody>
