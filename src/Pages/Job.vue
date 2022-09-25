@@ -31,6 +31,7 @@
 </script>
 
 <template>
+    <RouterLink to="/">« Back to Jobs List</RouterLink>
     <div>
         <h2>Results for {{ id }}:</h2>
     </div>
