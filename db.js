@@ -55,7 +55,7 @@ module.exports = {
     async getResults(job_id) {
         let obj;
         if (job_id) {
-            obj = await knex("results").where({job_id}).select();
+            obj = await knex("results").where({job_id}).select().limit(1000).orderBy("finished", "desc");
         } else {
             obj = await knex("results").select();
         }

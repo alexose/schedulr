@@ -1,6 +1,11 @@
 <script>
+    import {RouterLink} from "vue-router";
+
     export default {
         name: "JobList",
+        components: {
+            RouterLink,
+        },
         props: {
             jobs: Array,
         },
@@ -27,7 +32,9 @@
         </thead>
         <tbody>
             <tr v-for="job in jobs" :key="job.id">
-                <td>{{ job.id }}</td>
+                <td>
+                    <RouterLink :to="'/jobs/' + job.id">{{ job.id }}</RouterLink>
+                </td>
                 <td>{{ job.lastResult.count }}</td>
                 <td>{{ new Date(job.lastResult.finished).toLocaleDateString() }}</td>
                 <td>{{ job.lastResult.data }}</td>

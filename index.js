@@ -73,7 +73,7 @@ app.get("/api/results", async (req, res) => {
     res.send(results);
 });
 
-app.get("/api/results/:id", async (req, res) => {
+app.get("/api/jobs/:id", async (req, res) => {
     const results = await db.getResults(req.params.id);
     res.send(results);
 });
