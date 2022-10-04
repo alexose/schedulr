@@ -16,6 +16,7 @@
                 await fetch("/api/jobs/" + key, {
                     method: "DELETE",
                 });
+                this.emitter.emit("job_deleted", key);
             },
         },
     };

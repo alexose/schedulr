@@ -31,6 +31,7 @@
                         },
                         body: JSON.stringify(obj),
                     });
+                    this.emitter.emit("job_added", obj);
                 } else {
                     response = await fetch("/api/jobs", {
                         method: "POST",
@@ -39,6 +40,7 @@
                         },
                         body: JSON.stringify(obj),
                     });
+                    this.emitter.emit("job_changed", obj);
                 }
 
                 const text = await response.text();
