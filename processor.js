@@ -14,14 +14,22 @@ const vm = new NodeVM({
 
 module.exports = async function (job, done) {
     const started = new Date();
-    const {jobId, count} = job.opts.repeat;
+    const jobId = job.opts?.repeat?.jobId || 0;
+    const count = job.opts?.repeat?.count || 0;
+    const test = job.opts?.test;
+
     console.log("Running job " + jobId);
     try {
         const result = await vm.run(job.data.code, "node_modules")();
-        await db.writeResult(jobId, started, count, result);
+
+        if (!test) {
+            await db.writeResult(jobId, started, count, result);
+        }
         done(null, result);
     } catch (error) {
-        await db.writeResult(jobId, started, count, null, error);
+        if (!test) {
+            await db.writeResult(jobId, started, count, null, error);
+        }
         done(error);
     }
 };

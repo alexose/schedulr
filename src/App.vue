@@ -24,19 +24,22 @@
                     const event = obj.event;
                     if (event === "job_list") {
                         this.jobs = obj.data;
-                        console.log(obj.data);
                     } else if (event === "job_start") {
                         const jobId = obj.data;
                         const job = this.jobs.find(d => d.id === jobId);
-                        job.status = "running";
+                        if (job) job.status = "running";
                     } else if (event === "job_failed") {
                         const jobId = obj.data;
                         const job = this.jobs.find(d => d.id === jobId);
-                        job.status = "failed";
+                        if (job) job.status = "failed";
                     } else if (event === "job_completed") {
                         const jobId = obj.data;
                         const job = this.jobs.find(d => d.id === jobId);
-                        job.status = undefined;
+                        if (job) job.status = undefined;
+                    } else if (event === "test_failed") {
+                        console.log("TESTFAILED", obj);
+                    } else if (event === "test_completed") {
+                        console.log("TESTSUCCEDED", obj);
                     }
                 } catch (e) {
                     console.error("Couldn't parse data: " + e);

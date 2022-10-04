@@ -37,12 +37,24 @@ jobQueue.on("active", async function (job, err) {
 
 jobQueue.on("failed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
-    broadcast({event: "job_failed", data});
+    const test = job?.data?.test;
+    if (test) {
+        broadcast({event: "test_failed", job});
+        console.log(job);
+    } else {
+        broadcast({event: "job_failed", data});
+    }
 });
 
 jobQueue.on("completed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
-    broadcast({event: "job_completed", data});
+    const test = job?.data?.test;
+    if (test) {
+        broadcast({event: "test_completed", job});
+        console.log(job);
+    } else {
+        broadcast({event: "job_completed", data});
+    }
 });
 
 app.use(express.json());
@@ -79,6 +91,26 @@ app.post("/api/jobs", async (req, res) => {
         console.log(`Adding ${name} with no repeat...`);
         jobQueue.add(data, {jobId: name});
     }
+
+    const jobs = await jobQueue.getRepeatableJobs();
+    res.send(jobs);
+});
+
+app.post("/api/testjob", async (req, res) => {
+    const obj = req.body;
+
+    if (!obj.code) {
+        res.status(400).send("code field is required");
+        return;
+    }
+
+    const {name, every, ...data} = obj;
+    const testName = name + "-" + +new Date();
+
+    data.test = true;
+
+    console.log(`Testing "${testName}"...`);
+    jobQueue.add(data, {jobId: testName});
 
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);

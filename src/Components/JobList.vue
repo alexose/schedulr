@@ -1,7 +1,7 @@
 <script>
     import {RouterLink} from "vue-router";
-    import SimpleSpinner from "./SimpleSpinner.vue";
 
+    import SimpleSpinner from "./SimpleSpinner.vue";
     export default {
         name: "JobList",
         components: {

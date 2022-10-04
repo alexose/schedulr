@@ -1,11 +1,13 @@
 <script>
     import {VAceEditor} from "vue3-ace-editor";
     import ExampleCode from "../example-code.js";
+    import SimpleSpinner from "./SimpleSpinner.vue";
 
     export default {
         name: "App",
         components: {
             VAceEditor,
+            SimpleSpinner,
         },
         methods: {
             async addJob() {
@@ -28,6 +30,26 @@
                 console.log(text);
                 this.jobForm = false;
             },
+            async testJob() {
+                const obj = {
+                    code: this.content,
+                    name: this.name || this.placeholder,
+                };
+                if (this.every) {
+                    obj.every = this.every;
+                }
+
+                this.testLoading = true;
+                await fetch("/api/testjob", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(obj),
+                });
+                // API will return the job list here.  We'll need to wait for the actual response
+                // to come through via the websocket.
+            },
             makeRandomHash() {
                 // via https://stackoverflow.com/questions/1349404
                 let result = "";
@@ -47,6 +69,7 @@
                 content: ExampleCode,
                 every: "5",
                 jobForm: false,
+                testLoading: false,
             };
         },
     };
@@ -71,10 +94,15 @@
             <input type="text" class="job-form-input-small" maxlength="4" v-model="every" name="every" />
             <label class="job-form-label-extra">minutes</label>
         </div>
-        <div class="job-form-option">
+        <div class="job-form-option centered">
             <label></label>
             <button type="submit" @click="addJob">Add Job</button>
+            <button type="submit" @click="testJob">Test Job</button>
+            <div class="status" :class="{hidden: !testLoading}">
+                <SimpleSpinner />
+            </div>
             <button @click="this.jobForm = false" class="secondary">Cancel</button>
+            <div class="spacer" />
         </div>
     </div>
 </template>
@@ -103,6 +131,9 @@
         margin: 15px 0;
         display: flex;
     }
+    .job-form-option.centered {
+        align-items: center;
+    }
     .job-form-option .editor {
         border: 1px solid #ddd;
         width: 630px;
@@ -117,6 +148,7 @@
     }
     .job-form-option button.secondary {
         border: none;
+        margin-left: 20px;
     }
     .job-form-input-small {
         width: 36px;
@@ -124,5 +156,8 @@
     }
     .job-form label.job-form-label-extra {
         width: auto;
+    }
+    .job-form-option .hidden {
+        visibility: hidden;
     }
 </style>
