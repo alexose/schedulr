@@ -26,14 +26,17 @@
             return {
                 results: [],
                 changes: [],
+                job: {},
                 id: this.$route.params.id,
                 editing: false,
             };
         },
         async mounted() {
             const jobsResponse = await fetch(`/api/jobs/${this.id}`);
-            this.results = await jobsResponse.json();
-            console.log(this.results);
+            const obj = await jobsResponse.json();
+            this.results = obj.results;
+            this.job = obj.job;
+            console.log(obj);
             this.calculateChanges();
         },
     };
@@ -69,7 +72,7 @@
     <hr class="spacer" />
     <button @click="editJob()">Edit Job</button>
     <div class="job-editor" v-if="editing">
-        <JobEditor job="job" />
+        <JobEditor :job="job" />
     </div>
 </template>
 

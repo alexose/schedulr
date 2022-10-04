@@ -13,7 +13,7 @@
             job: Object,
         },
         methods: {
-            async addJob() {
+            async saveJob() {
                 const obj = {
                     code: this.content,
                     name: this.name || this.placeholder,
@@ -21,13 +21,25 @@
                 if (this.every) {
                     obj.every = this.every;
                 }
-                const response = await fetch("/api/jobs", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(obj),
-                });
+
+                let response;
+                if (this.job) {
+                    response = await fetch("/api/jobs/" + this.job.job_id, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(obj),
+                    });
+                } else {
+                    response = await fetch("/api/jobs", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(obj),
+                    });
+                }
 
                 const text = await response.text();
                 console.log(text);
@@ -67,14 +79,16 @@
         },
         data() {
             const {job} = this;
+            console.log(job);
             if (job) {
                 return {
-                    name: job.name,
+                    name: job.job_id,
                     content: ExampleCode,
                     every: "5",
-                    jobForm: false,
+                    jobForm: true,
                     testLoading: false,
                     testResult: "",
+                    submitText: "Save Job",
                 };
             } else {
                 return {
@@ -85,6 +99,7 @@
                     jobForm: false,
                     testLoading: false,
                     testResult: "",
+                    submitText: "Add Job",
                 };
             }
         },
@@ -138,7 +153,7 @@
         </div>
         <div class="job-form-option centered">
             <label></label>
-            <button type="submit" @click="addJob">Add Job</button>
+            <button type="submit" @click="saveJob">{{ submitText }}</button>
             <button type="submit" @click="testJob">Test Job</button>
             <div class="status" :class="{hidden: !testLoading}">
                 <SimpleSpinner />

@@ -2,8 +2,7 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const config = require("./config.js");
-const Queue = require("bull");
-const jobQueue = new Queue("jobs");
+const jobQueue = require("./jobQueue.js");
 const path = require("path");
 const http = require("http");
 const db = require("./db");
@@ -84,6 +83,20 @@ app.post("/api/jobs", async (req, res) => {
     res.send(jobs);
 });
 
+app.put("/api/jobs/:id", async (req, res) => {
+    const {id} = req.params;
+    const obj = req.body;
+
+    if (!obj.code) {
+        res.status(400).send("code field is required");
+        return;
+    }
+
+    obj.job_id = id;
+    const jobs = await db.editJob(obj);
+    res.send(jobs);
+});
+
 app.post("/api/testjob", async (req, res) => {
     const obj = req.body;
 
@@ -110,8 +123,10 @@ app.get("/api/results", async (req, res) => {
 });
 
 app.get("/api/jobs/:id", async (req, res) => {
-    const results = await db.getResults(req.params.id);
-    res.send(results);
+    const {id} = req.params;
+    const job = await db.getJob(id);
+    const results = await db.getResults(id);
+    res.send({job, results});
 });
 
 app.delete("/api/jobs/:key", async (req, res) => {

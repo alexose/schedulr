@@ -1,3 +1,5 @@
+const jobQueue = require("./jobQueue.js");
+
 const knex = require("knex")({
     client: "sqlite3",
     useNullAsDefault: true,
@@ -12,6 +14,8 @@ knex.schema.hasTable("jobs").then(function (exists) {
         return knex.schema.createTable("jobs", function (t) {
             t.increments("id").primary();
             t.string("job_id");
+            t.string("code");
+            t.integer("every");
             t.datetime("last_run");
         });
     }
@@ -32,21 +36,42 @@ knex.schema.hasTable("results").then(function (exists) {
     }
 });
 
-// Add a job to the database, and ensure that job is added to bull.
+// Add a job to the database and ensure that job is added to the queue
 async function addJob(obj) {
     const {name, every, ...data} = obj;
-
     if (every) {
         console.log(`Adding ${name}, repeating every ${every} seconds...`);
         await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000}});
-        broadcastJobs();
+        await writeJob(obj);
     } else {
+        // One-off jobs don't get recorded, for now
         console.log(`Adding ${name} with no repeat...`);
         jobQueue.add(data, {jobId: name});
     }
 
     const jobs = await jobQueue.getRepeatableJobs();
-    res.send(jobs);
+    return jobs;
+}
+
+// Edit an existing job, then remove + re-add job to queue
+// TODO: finish this
+async function editJob(obj) {
+    const {name, every, ...data} = obj;
+    console.log(`Editing ${name}, repeating every ${every} seconds...`);
+    await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000}});
+    await writeJob(obj);
+    const jobs = await jobQueue.getRepeatableJobs();
+    return jobs;
+}
+
+async function writeJob(obj) {
+    const {name, ...rest} = obj;
+    const job = await knex("jobs")
+        .insert({job_id: name, ...rest})
+        .catch(e => {
+            console.error(e);
+        });
+    return job;
 }
 
 async function writeResult(job_id, started, count, data, error) {
@@ -70,6 +95,14 @@ async function writeResult(job_id, started, count, data, error) {
         .catch(e => {
             console.error(e);
         });
+}
+
+async function getJob(job_id) {
+    if (job_id) {
+        return await knex("jobs").where({job_id}).select().first();
+    } else {
+        return await knex("jobs").select().limit(1000);
+    }
 }
 
 async function getResults(job_id) {
@@ -97,6 +130,8 @@ async function augmentResults(jobs) {
 
 module.exports = {
     addJob,
+    editJob,
+    getJob,
     writeResult,
     getResults,
     augmentResults,
