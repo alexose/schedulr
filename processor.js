@@ -5,7 +5,7 @@ const db = require("./db");
 const vm = new NodeVM({
     require: {
         external: {
-            modules: ["puppeteer"],
+            modules: ["puppeteer", "node-fetch"],
         },
         root: [__dirname],
         wrapper: "none",
