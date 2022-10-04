@@ -4,6 +4,9 @@ import App from "./App.vue";
 import Home from "./Pages/Home.vue";
 import About from "./Pages/About.vue";
 import Job from "./Pages/Job.vue";
+import mitt from "mitt";
+
+const emitter = mitt();
 
 const routes = [
     {path: "/", component: Home},
@@ -16,4 +19,6 @@ const router = createRouter({
     routes,
 });
 
-createApp(App).use(router).mount("#app");
+const app = createApp(App);
+app.config.globalProperties.emitter = emitter;
+app.use(router).mount("#app");

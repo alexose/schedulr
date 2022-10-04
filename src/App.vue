@@ -1,6 +1,5 @@
 <script>
     import {RouterView} from "vue-router";
-
     export default {
         name: "App",
         components: {
@@ -36,11 +35,8 @@
                         const jobId = obj.data;
                         const job = this.jobs.find(d => d.id === jobId);
                         if (job) job.status = undefined;
-                    } else if (event === "test_failed") {
-                        console.log("TESTFAILED", obj);
-                    } else if (event === "test_completed") {
-                        console.log("TESTSUCCEDED", obj);
                     }
+                    this.emitter.emit(event, obj);
                 } catch (e) {
                     console.error("Couldn't parse data: " + e);
                 }

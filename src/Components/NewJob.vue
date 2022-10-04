@@ -70,7 +70,20 @@
                 every: "5",
                 jobForm: false,
                 testLoading: false,
+                testResult: "",
             };
+        },
+        mounted() {
+            this.emitter.on("test_failed", obj => {
+                console.log(obj);
+                this.testLoading = false;
+                this.testResult = obj.job.returnvalue;
+            });
+            this.emitter.on("test_completed", obj => {
+                console.log(obj);
+                this.testLoading = false;
+                this.testResult = obj.job.returnvalue;
+            });
         },
     };
 </script>
@@ -103,6 +116,12 @@
             </div>
             <button @click="this.jobForm = false" class="secondary">Cancel</button>
             <div class="spacer" />
+        </div>
+        <div class="job-form-option" v-if="!testLoading && testResult">
+            <label>Test result:</label>
+            <div class="test-result">
+                {{ testResult }}
+            </div>
         </div>
     </div>
 </template>
@@ -137,6 +156,9 @@
     .job-form-option .editor {
         border: 1px solid #ddd;
         width: 630px;
+    }
+    .job-form-option .test-result {
+        margin-top: 5px;
     }
     .job-form-option input {
         padding: 0 10px;
