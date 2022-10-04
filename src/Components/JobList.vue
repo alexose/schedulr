@@ -12,11 +12,11 @@
             jobs: Array,
         },
         methods: {
-            async deleteJob(key) {
-                await fetch("/api/jobs/" + key, {
+            async deleteJob(job_id) {
+                await fetch("/api/jobs/" + job_id, {
                     method: "DELETE",
                 });
-                this.emitter.emit("job_deleted", key);
+                this.emitter.emit("job_deleted", job_id);
             },
         },
     };
@@ -34,15 +34,15 @@
             </tr>
         </thead>
         <tbody>
-            <tr v-for="job in jobs" :key="job.id">
+            <tr v-for="job in jobs" :key="job.job_id">
                 <td>
-                    <RouterLink :to="'/jobs/' + job.id">{{ job.id }}</RouterLink>
+                    <RouterLink :to="'/jobs/' + job.job_id">{{ job.job_id }}</RouterLink>
                 </td>
                 <td>{{ job.lastResult?.count }}</td>
                 <td>{{ new Date(job.lastResult?.finished).toLocaleDateString() }}</td>
                 <td>{{ job.lastResult?.data }}</td>
                 <td class="job-list-controls">
-                    <button class="job-list-delete" @click="deleteJob(job.key)">X</button>
+                    <button class="job-list-delete" @click="deleteJob(job.job_id)">X</button>
                     <div class="status" :class="{hidden: !job.status}">
                         <div class="status" v-if="job.status === 'running'">
                             <SimpleSpinner />

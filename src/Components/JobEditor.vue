@@ -145,7 +145,7 @@
                 <summary>Advanced Options</summary>
                 <div class="job-form-option job-form-option-advanced">
                     <input type="checkbox" id="diffs" name="diffs" />
-                    <label class="pointer" for="diffs">Store diffs only</label>
+                    <label class="pointer" for="diffs">Store full results regardless of changes</label>
                 </div>
                 <div class="job-form-option job-form-option-advanced">
                     <input class="job-form-input-small" type="text" id="timeout" name="timeout" placeholder="5" />

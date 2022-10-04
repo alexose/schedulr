@@ -17,6 +17,7 @@ knex.schema.hasTable("jobs").then(function (exists) {
             t.string("code");
             t.integer("every");
             t.datetime("last_run");
+            t.string("last_result");
         });
     }
 });
@@ -64,6 +65,14 @@ async function editJob(obj) {
     return jobs;
 }
 
+// Remove an existing job, then remove from queue
+// TODO: finish this
+async function deleteJob(job_id) {
+    await knex("jobs").where({job_id}).delete();
+    await jobQueue.removeRepeatableByKey(job_id);
+    return job_id;
+}
+
 async function writeJob(obj) {
     const {name, ...rest} = obj;
     const job = await knex("jobs")
@@ -76,21 +85,25 @@ async function writeJob(obj) {
 
 async function writeResult(job_id, started, count, data, error) {
     const finished = new Date();
-    const result = knex("results")
+
+    // Look up last result
+    const lastResult = await knex("jobs").where({job_id}).first().select("last_result");
+    const thisResult = JSON.stringify(data);
+    const changed = lastResult === thisResult;
+
+    if (changed) {
+        console.log(`Detected change for ${job_id}: ${lastResult} changed to ${thisResult}`);
+        await knex("jobs").where({job_id}).update({last_result: lastResult});
+    }
+
+    await knex("results")
         .insert({
-            data: data === null ? null : JSON.stringify(data),
+            data: changed ? null : thisResult,
             error,
             job_id,
             count,
             started,
             finished,
-        })
-        .then(() => {
-            if (!error) {
-                const trunc = data.length > 80 ? data.substr(0, 80) + "..." : data;
-                const seconds = Math.round(((finished - started) / 1000) * 100) / 100;
-                console.log(`${job_id}: Got ${trunc} in ${seconds} seconds.`);
-            }
         })
         .catch(e => {
             console.error(e);
@@ -120,19 +133,11 @@ async function getResults(job_id) {
     });
 }
 
-async function augmentResults(jobs) {
-    // TODO: replace this with some cool INNER JOIN stuff
-    for (let i = 0; i < jobs.length; i++) {
-        jobs[i].lastResult = await knex("results").where({job_id: jobs[i].id}).orderBy("id", "desc").first();
-    }
-    return jobs;
-}
-
 module.exports = {
+    getJob,
     addJob,
     editJob,
-    getJob,
+    deleteJob,
     writeResult,
     getResults,
-    augmentResults,
 };

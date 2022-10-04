@@ -63,11 +63,7 @@ app.get("/api/", (req, res) => {
 
 app.get("/api/jobs", async (req, res) => {
     // Get jobs out of bull/redis
-    let jobs = await jobQueue.getRepeatableJobs();
-
-    // Get last results out of sqlite
-    jobs = await db.augmentResults(jobs);
-
+    const jobs = await db.getJob();
     res.send(jobs);
 });
 
@@ -129,9 +125,9 @@ app.get("/api/jobs/:id", async (req, res) => {
     res.send({job, results});
 });
 
-app.delete("/api/jobs/:key", async (req, res) => {
-    const {key} = req.params;
-    const result = await jobQueue.removeRepeatableByKey(key);
+app.delete("/api/jobs/:id", async (req, res) => {
+    const {id} = req.params;
+    const result = await db.deleteJob(id); 
     await broadcastJobs();
     res.send(result);
 });
