@@ -1,6 +1,6 @@
 <script>
     import JobList from "../Components/JobList.vue";
-    import NewJob from "../Components/NewJob.vue";
+    import JobEditor from "../Components/JobEditor.vue";
     export default {
         name: "HomePage",
         props: {
@@ -8,12 +8,12 @@
         },
         components: {
             JobList,
-            NewJob,
+            JobEditor,
         },
     };
 </script>
 
 <template>
     <JobList :jobs="jobs" />
-    <NewJob />
+    <JobEditor />
 </template>

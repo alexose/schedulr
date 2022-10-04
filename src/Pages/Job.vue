@@ -1,9 +1,9 @@
 <script>
-    import NewJob from "../Components/NewJob.vue";
+    import JobEditor from "../Components/JobEditor.vue";
     export default {
         name: "JobPage",
         components: {
-            NewJob,
+            JobEditor,
         },
         methods: {
             calculateChanges() {
@@ -33,6 +33,7 @@
         async mounted() {
             const jobsResponse = await fetch(`/api/jobs/${this.id}`);
             this.results = await jobsResponse.json();
+            console.log(this.results);
             this.calculateChanges();
         },
     };
@@ -68,7 +69,7 @@
     <hr class="spacer" />
     <button @click="editJob()">Edit Job</button>
     <div class="job-editor" v-if="editing">
-        <NewJob job="job" />
+        <JobEditor job="job" />
     </div>
 </template>
 
