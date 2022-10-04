@@ -66,7 +66,8 @@
             },
         },
         data() {
-            if (this.job) {
+            const {job} = this;
+            if (job) {
                 return {
                     name: job.name,
                     content: ExampleCode,
