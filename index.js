@@ -80,18 +80,7 @@ app.post("/api/jobs", async (req, res) => {
         return;
     }
 
-    const {name, every, ...data} = obj;
-
-    if (every) {
-        console.log(`Adding ${name}, repeating every ${every} seconds...`);
-        await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000}});
-        broadcastJobs();
-    } else {
-        console.log(`Adding ${name} with no repeat...`);
-        jobQueue.add(data, {jobId: name});
-    }
-
-    const jobs = await jobQueue.getRepeatableJobs();
+    const jobs = await db.addJob(obj);
     res.send(jobs);
 });
 
