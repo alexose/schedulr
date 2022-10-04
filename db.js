@@ -32,6 +32,7 @@ knex.schema.hasTable("results").then(function (exists) {
     }
 });
 
+// Add a job to the database, and ensure that job is added to bull.
 async function addJob(obj) {
     const {name, every, ...data} = obj;
 
