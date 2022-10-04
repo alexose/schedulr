@@ -107,6 +107,20 @@
             <input type="text" class="job-form-input-small" maxlength="4" v-model="every" name="every" />
             <label class="job-form-label-extra">minutes</label>
         </div>
+        <div class="job-form-option">
+            <label></label>
+            <details>
+                <summary>Advanced Options</summary>
+                <div class="job-form-option job-form-option-advanced">
+                    <input type="checkbox" id="diffs" name="diffs" />
+                    <label class="pointer" for="diffs">Store diffs only</label>
+                </div>
+                <div class="job-form-option job-form-option-advanced">
+                    <input class="job-form-input-small" type="text" id="timeout" name="timeout" placeholder="5" />
+                    <label for="timeout">second timeout</label>
+                </div>
+            </details>
+        </div>
         <div class="job-form-option centered">
             <label></label>
             <button type="submit" @click="addJob">Add Job</button>
@@ -147,8 +161,11 @@
         text-align: right;
     }
     .job-form-option {
-        margin: 15px 0;
+        margin: 24px 0;
         display: flex;
+    }
+    .job-form-option summary {
+        cursor: pointer;
     }
     .job-form-option.centered {
         align-items: center;
@@ -173,7 +190,7 @@
         margin-left: 20px;
     }
     .job-form-input-small {
-        width: 36px;
+        width: 30px;
         text-align: center;
     }
     .job-form label.job-form-label-extra {
@@ -181,5 +198,14 @@
     }
     .job-form-option .hidden {
         visibility: hidden;
+    }
+    .job-form-option-advanced {
+        margin: 10px 0;
+    }
+    .job-form-option-advanced label {
+        width: auto;
+    }
+    .job-form-option .pointer {
+        cursor: pointer;
     }
 </style>

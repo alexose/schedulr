@@ -1,6 +1,10 @@
 <script>
+    import NewJob from "../Components/NewJob.vue";
     export default {
         name: "JobPage",
+        components: {
+            NewJob,
+        },
         methods: {
             calculateChanges() {
                 // Are we dealing with single-number results? If so, we can figure out the changes between each run.
@@ -14,12 +18,16 @@
                     }
                 }
             },
+            editJob() {
+                this.editing = true;
+            },
         },
         data() {
             return {
                 results: [],
                 changes: [],
                 id: this.$route.params.id,
+                editing: false,
             };
         },
         async mounted() {
@@ -48,7 +56,7 @@
             <tr v-for="(result, idx) in results" :key="result.id">
                 <td>{{ new Date(result.finished).toLocaleDateString() }}</td>
                 <td>{{ new Date(result.finished).toLocaleTimeString() }}</td>
-                <td>{{ result.data }}</td>
+                <td class="results-table-value">{{ result.data }}</td>
                 <td>{{ changes[idx] }}</td>
                 <td>
                     <div class="error-text">{{ result.error }}</div>
@@ -57,6 +65,11 @@
             </tr>
         </tbody>
     </table>
+    <hr class="spacer" />
+    <button @click="editJob()">Edit Job</button>
+    <div class="job-editor" v-if="editing">
+        <NewJob job="job" />
+    </div>
 </template>
 
 <style>
@@ -64,18 +77,25 @@
         width: 1200px;
         margin: 0 auto;
         border-spacing: 0;
+        white-space: nowrap;
     }
     .results-table tr:nth-child(odd) {
         background: #f3f3f3;
     }
     .results-table td,
     .results-table th {
-        padding: 10px 5px;
+        padding: 10px 10px;
     }
     .results-table-date,
     .results-table-time,
     .results-table-runtime {
         width: 120px;
+    }
+
+    .results-table-value {
+        overflow: hidden;
+        max-width: 1000px;
+        text-overflow: ellipsis;
     }
 
     .error-text {

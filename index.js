@@ -51,7 +51,6 @@ jobQueue.on("completed", function (job, err) {
     const test = job?.data?.test;
     if (test) {
         broadcast({event: "test_completed", job});
-        console.log(job);
     } else {
         broadcast({event: "job_completed", data});
     }
