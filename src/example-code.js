@@ -1,4 +1,6 @@
-module.exports = `/*
+const example1 = {
+    name: "Example One: Puppeteer",
+    content: `/*
  * Welcome to Schedulr!
  *
  * The code in this editor will be run on a timer in a NodeJS sandbox.
@@ -25,4 +27,32 @@ module.exports = async function () {
     });
     browser.close();
     return price;
-}`;
+}`,
+};
+
+const example2 = {
+    name: "Example Two: Fetch",
+    content: `/*
+ * This example uses node-fetch to check a free API.  In this case, we're 
+ * checking the weather in Jacksonville, Oregon via the weather.gov API. 
+ *
+ */
+
+const fetch = require("node-fetch");
+const url = "https://api.weather.gov/stations/kmfr/observations";
+
+module.exports = async function () {
+    const response = await fetch(url);
+    return await response.text();
+}`,
+};
+
+const example3 = {
+    name: "Example Three: null",
+    content: `/*
+ * This example is... coming soon! 
+ */
+}`,
+};
+
+module.exports = [example1, example2, example3];

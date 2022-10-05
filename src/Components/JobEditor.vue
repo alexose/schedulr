@@ -1,7 +1,8 @@
 <script>
     import {VAceEditor} from "vue3-ace-editor";
-    import ExampleCode from "../example-code.js";
     import SimpleSpinner from "./SimpleSpinner.vue";
+
+    import examples from "../example-code.js";
 
     export default {
         name: "App",
@@ -11,6 +12,12 @@
         },
         props: {
             job: Object,
+        },
+        computed: {
+            isCustom() {
+                return false;
+                // return this.content && !examples.map(d => d.content).includes(this.content);
+            },
         },
         methods: {
             async saveJob() {
@@ -43,8 +50,7 @@
                     this.emitter.emit("job_changed", obj);
                 }
 
-                const text = await response.text();
-                console.log(text);
+                await response.text();
                 this.jobForm = false;
             },
             async testJob() {
@@ -78,32 +84,33 @@
                 }
                 return result;
             },
+            loadExample(event) {
+                const idx = event.target.value;
+                this.content = examples[idx].content;
+            },
         },
         data() {
             const {job} = this;
-            console.log(job);
+            console.log(examples);
+            const obj = {
+                name: "",
+                placeholder: "Job-" + this.makeRandomHash(),
+                content: examples[0].content,
+                every: "5",
+                jobForm: false,
+                testLoading: false,
+                testResult: "",
+                submitText: "Add Job",
+                selected: 0,
+                examples,
+            };
             if (job) {
-                return {
-                    name: job.job_id,
-                    content: ExampleCode,
-                    every: "5",
-                    jobForm: true,
-                    testLoading: false,
-                    testResult: "",
-                    submitText: "Save Job",
-                };
-            } else {
-                return {
-                    name: "",
-                    placeholder: "Job-" + this.makeRandomHash(),
-                    content: ExampleCode,
-                    every: "5",
-                    jobForm: false,
-                    testLoading: false,
-                    testResult: "",
-                    submitText: "Add Job",
-                };
+                obj.name = job.job_id;
+                obj.content = job.code;
+                obj.every = job.every;
+                obj.jobForm = true;
             }
+            return obj;
         },
         mounted() {
             this.emitter.on("test_failed", obj => {
@@ -127,6 +134,12 @@
     <div v-if="jobForm" class="job-form">
         <div class="job-form-option">
             <label>Name</label><input type="text" :placeholder="placeholder" v-model="name" name="name" />
+        </div>
+        <div class="job-form-option">
+            <label></label>
+            <select @change="loadExample" v-model="selected" :disabled="isCustom">
+                <option :value="idx" v-for="(example, idx) in examples" :key="idx">{{ example.name }}</option>
+            </select>
         </div>
         <div class="job-form-option">
             <label>Code</label>
@@ -212,6 +225,9 @@
     .job-form-option input {
         padding: 0 10px;
         font-size: 16px;
+    }
+    .job-form-option select {
+        padding: 10px;
     }
     .job-form-option button {
         padding: 6px 10px;
