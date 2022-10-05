@@ -1,11 +1,17 @@
 <script>
     import JobEditor from "../Components/JobEditor.vue";
+    import AnsiToHtml from "ansi-to-html";
+
     export default {
         name: "JobPage",
         components: {
             JobEditor,
         },
         methods: {
+            convert(str) {
+                const converter = new AnsiToHtml();
+                return converter.toHtml(str);
+            },
             calculateChanges() {
                 // Are we dealing with single-number results? If so, we can figure out the changes between each run.
                 const first = this.results[0];
@@ -59,7 +65,7 @@
                 <td>{{ new Date(result.finished).toLocaleDateString() }}</td>
                 <td>{{ new Date(result.finished).toLocaleTimeString() }}</td>
                 <td class="results-table-value">{{ result.data }}</td>
-                <td class="results-table-diff">{{ result.diff }}</td>
+                <td class="results-table-diff" v-html="convert(result.diff || '')"></td>
                 <td>
                     <div class="error-text">{{ result.error }}</div>
                 </td>
