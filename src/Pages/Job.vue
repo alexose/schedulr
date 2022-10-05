@@ -63,7 +63,9 @@
         <tbody>
             <tr v-for="result in results" :key="result.id">
                 <td>{{ new Date(result.finished).toLocaleDateString() }}</td>
-                <td>{{ new Date(result.finished).toLocaleTimeString() }}</td>
+                <td>
+                    <a :href="`/jobs/${id}/${result.id}`">{{ new Date(result.finished).toLocaleTimeString() }}</a>
+                </td>
                 <td class="results-table-value">{{ result.data }}</td>
                 <td class="results-table-diff" v-html="convert(result.diff || '')"></td>
                 <td>

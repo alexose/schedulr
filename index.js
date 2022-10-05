@@ -117,6 +117,12 @@ app.get("/api/results", async (req, res) => {
     res.send(results);
 });
 
+app.get("/api/results/:id", async (req, res) => {
+    const {id} = req.params;
+    const result = await db.getResult(id);
+    res.send(result);
+});
+
 app.get("/api/jobs/:id", async (req, res) => {
     const {id} = req.params;
     const job = await db.getJob(id);

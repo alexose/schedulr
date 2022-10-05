@@ -148,6 +148,10 @@ async function getResults(job_id) {
     });
 }
 
+async function getResult(result_id) {
+    return await knex("results").where({id: result_id}).select().first();
+}
+
 module.exports = {
     getJob,
     addJob,
@@ -155,4 +159,5 @@ module.exports = {
     deleteJob,
     writeResult,
     getResults,
+    getResult,
 };
