@@ -1,4 +1,5 @@
 const jobQueue = require("./jobQueue.js");
+const jsonDiff = require("json-diff");
 
 const knex = require("knex")({
     client: "sqlite3",
@@ -31,6 +32,7 @@ knex.schema.hasTable("results").then(function (exists) {
             t.string("data");
             t.string("error");
             t.string("job_id");
+            t.string("diff");
             t.integer("count");
             t.datetime("started");
             t.datetime("finished");
@@ -88,11 +90,13 @@ async function writeResult(job_id, started, count, data, error) {
     // Look up last result
     const last = await knex("jobs").where({job_id}).first().select("last_result");
     const lastResult = last.last_result;
-    const thisResult = JSON.stringify(data);
+    const thisResult = data;
     const changed = !lastResult || lastResult !== thisResult;
+    let diff;
 
     if (changed) {
         console.log(`Detected change for ${job_id}!`);
+        diff = makeDiff(lastResult, thisResult);
         await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
     }
 
@@ -104,10 +108,21 @@ async function writeResult(job_id, started, count, data, error) {
             count,
             started,
             finished,
+            diff,
         })
         .catch(e => {
             console.error(e);
         });
+}
+
+function makeDiff(a, b) {
+    try {
+        const a1 = JSON.parse(a);
+        const b1 = JSON.parse(b);
+        return jsonDiff.diffString(a1, b1);
+    } catch (e) {
+        console.error("Couldn't diff: " + e);
+    }
 }
 
 async function getJob(job_id) {

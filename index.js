@@ -10,7 +10,6 @@ const socket = require("./socket");
 const broadcast = socket.broadcast;
 
 /*
-jobQueue.empty();
 jobQueue.clean(0, "delayed");
 jobQueue.clean(0, "wait");
 jobQueue.clean(0, "active");

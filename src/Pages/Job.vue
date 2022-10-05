@@ -25,7 +25,6 @@
         data() {
             return {
                 results: [],
-                changes: [],
                 job: {},
                 id: this.$route.params.id,
                 editing: false,
@@ -37,7 +36,6 @@
             this.results = obj.results;
             this.job = obj.job;
             console.log(obj);
-            this.calculateChanges();
         },
     };
 </script>
@@ -57,11 +55,11 @@
             <th class="results-table-runtime">Run Time</th>
         </thead>
         <tbody>
-            <tr v-for="(result, idx) in results" :key="result.id">
+            <tr v-for="result in results" :key="result.id">
                 <td>{{ new Date(result.finished).toLocaleDateString() }}</td>
                 <td>{{ new Date(result.finished).toLocaleTimeString() }}</td>
                 <td class="results-table-value">{{ result.data }}</td>
-                <td>{{ changes[idx] }}</td>
+                <td class="results-table-diff">{{ result.diff }}</td>
                 <td>
                     <div class="error-text">{{ result.error }}</div>
                 </td>
@@ -98,7 +96,13 @@
 
     .results-table-value {
         overflow: hidden;
-        max-width: 1000px;
+        max-width: 500px;
+        text-overflow: ellipsis;
+    }
+
+    .results-table-diff {
+        overflow: hidden;
+        max-width: 500px;
         text-overflow: ellipsis;
     }
 
