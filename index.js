@@ -127,7 +127,7 @@ app.get("/api/jobs/:id", async (req, res) => {
 
 app.delete("/api/jobs/:id", async (req, res) => {
     const {id} = req.params;
-    const result = await db.deleteJob(id); 
+    const result = await db.deleteJob(id);
     await broadcastJobs();
     res.send(result);
 });

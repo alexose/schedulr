@@ -55,7 +55,6 @@ async function addJob(obj) {
 }
 
 // Edit an existing job, then remove + re-add job to queue
-// TODO: finish this
 async function editJob(obj) {
     const {name, every, ...data} = obj;
     console.log(`Editing ${name}, repeating every ${every} seconds...`);
@@ -66,7 +65,6 @@ async function editJob(obj) {
 }
 
 // Remove an existing job, then remove from queue
-// TODO: finish this
 async function deleteJob(job_id) {
     await knex("jobs").where({job_id}).delete();
     await jobQueue.removeRepeatableByKey(job_id);
@@ -98,7 +96,7 @@ async function writeResult(job_id, started, count, data, error) {
 
     await knex("results")
         .insert({
-            data: changed ? null : thisResult,
+            data: changed ? thisResult : null,
             error,
             job_id,
             count,
