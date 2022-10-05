@@ -17,6 +17,7 @@ knex.schema.hasTable("jobs").then(function (exists) {
             t.string("code");
             t.integer("every");
             t.datetime("last_run");
+            t.datetime("last_change");
             t.string("last_result");
         });
     }
@@ -85,13 +86,14 @@ async function writeResult(job_id, started, count, data, error) {
     const finished = new Date();
 
     // Look up last result
-    const lastResult = await knex("jobs").where({job_id}).first().select("last_result");
+    const last = await knex("jobs").where({job_id}).first().select("last_result");
+    const lastResult = last.last_result;
     const thisResult = JSON.stringify(data);
-    const changed = lastResult === thisResult;
+    const changed = !lastResult || lastResult !== thisResult;
 
     if (changed) {
-        console.log(`Detected change for ${job_id}: ${lastResult} changed to ${thisResult}`);
-        await knex("jobs").where({job_id}).update({last_result: lastResult});
+        console.log(`Detected change for ${job_id}!`);
+        await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
     }
 
     await knex("results")

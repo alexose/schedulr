@@ -40,7 +40,7 @@
                 </td>
                 <td>{{ job.lastResult?.count }}</td>
                 <td>{{ new Date(job.lastResult?.finished).toLocaleDateString() }}</td>
-                <td>{{ job.lastResult?.data }}</td>
+                <td class="job-list-lastresult">{{ job.last_result }}</td>
                 <td class="job-list-controls">
                     <button class="job-list-delete" @click="deleteJob(job.job_id)">X</button>
                     <div class="status" :class="{hidden: !job.status}">
@@ -60,11 +60,11 @@
         width: 900px;
         margin: 50px auto;
         text-align: left;
+        white-space: nowrap;
     }
-    .job-list ul {
-        list-style: none;
-    }
-    .job-list ul li {
+    .job-list td,
+    .job-list th {
+        padding: 5px 10px;
     }
     .job-list-controls {
         display: flex;
@@ -73,6 +73,11 @@
     }
     .job-list-controls .hidden {
         opacity: 0;
+    }
+    .job-list-lastresult {
+        overflow: hidden;
+        max-width: 600px;
+        text-overflow: ellipsis;
     }
     .status {
         width: 40px;

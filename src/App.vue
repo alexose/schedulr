@@ -12,15 +12,15 @@
                     this.jobs = data;
                 } else if (event === "job_start") {
                     const jobId = data;
-                    const job = this.jobs.find(d => d.id === jobId);
+                    const job = this.jobs.find(d => d.job_id === jobId);
                     if (job) job.status = "running";
                 } else if (event === "job_failed") {
                     const jobId = data;
-                    const job = this.jobs.find(d => d.id === jobId);
+                    const job = this.jobs.find(d => d.job_id === jobId);
                     if (job) job.status = "failed";
                 } else if (event === "job_completed") {
                     const jobId = data;
-                    const job = this.jobs.find(d => d.id === jobId);
+                    const job = this.jobs.find(d => d.job_id === jobId);
                     if (job) job.status = undefined;
                 } else {
                     // Emit to client-side pubsub
