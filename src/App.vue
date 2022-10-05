@@ -22,6 +22,9 @@
                     const jobId = data;
                     const job = this.jobs.find(d => d.id === jobId);
                     if (job) job.status = undefined;
+                } else {
+                    // Emit to client-side pubsub
+                    this.emitter.emit(event, data);
                 }
             },
             async refresh() {

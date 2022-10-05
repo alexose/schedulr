@@ -114,14 +114,12 @@
         },
         mounted() {
             this.emitter.on("test_failed", obj => {
-                console.log(obj);
                 this.testLoading = false;
-                this.testResult = obj.job.returnvalue;
+                this.testResult = obj.returnvalue;
             });
             this.emitter.on("test_completed", obj => {
-                console.log(obj);
                 this.testLoading = false;
-                this.testResult = obj.job.returnvalue;
+                this.testResult = obj.returnvalue;
             });
         },
     };

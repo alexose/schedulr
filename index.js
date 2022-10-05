@@ -38,7 +38,7 @@ jobQueue.on("failed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
     const test = job?.data?.test;
     if (test) {
-        broadcast({event: "test_failed", job});
+        broadcast({event: "test_failed", data: job});
         console.log(job);
     } else {
         broadcast({event: "job_failed", data});
@@ -49,7 +49,7 @@ jobQueue.on("completed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
     const test = job?.data?.test;
     if (test) {
-        broadcast({event: "test_completed", job});
+        broadcast({event: "test_completed", data: job});
     } else {
         broadcast({event: "job_completed", data});
     }
