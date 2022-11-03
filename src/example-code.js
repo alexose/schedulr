@@ -48,10 +48,28 @@ module.exports = async function () {
 };
 
 const example3 = {
-    name: "Example Three: null",
+    name: "Example Three: Google Flights",
     content: `/*
- * This example is... coming soon! 
+ * This example uses Puppeteer to check flight prices on Google Flights.
+ *
  */
+
+const puppeteer = require("puppeteer");
+
+module.exports = async function () {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto("https://www.google.com/flights");
+    page.keyboard.press("Tab");
+    await page.type('nth-child(2)', 'Pizza Delivery');
+
+    let price = await page.evaluate(() => {
+        return ['.a-price-whole', '.a-price-fraction'].map((d) => {
+            return parseInt(document.querySelectorAll(d)[0].innerText);
+        }).join('.');
+    });
+    browser.close();
+    return price;
 }`,
 };
 
