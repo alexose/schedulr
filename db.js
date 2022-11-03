@@ -45,7 +45,12 @@ async function addJob(obj) {
     const {name, every, ...data} = obj;
     if (every) {
         console.log(`Adding ${name}, repeating every ${every} seconds...`);
+
+        // Add job to queue, but also run immediately
         await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000}});
+        await jobQueue.add(data, {jobId: name + "-first"});
+
+        // Record job in database
         await writeJob(obj);
     } else {
         // One-off jobs don't get recorded, for now
@@ -55,6 +60,31 @@ async function addJob(obj) {
 
     const jobs = await jobQueue.getRepeatableJobs();
     return jobs;
+}
+
+// Sync database with queue.  Our strategy here is that the database is the source of truth.
+// If we find a job that exists in the DB but not in the queue, we create it.
+// Vise versa, we delete it.
+async function sync() {
+    const qj = await jobQueue.getRepeatableJobs();
+
+    // TODO: turn this into a stream
+    const dj = await knex("jobs").select();
+    dj.forEach(job => {
+        const match = qj.find(d => d.id === job.job_id);
+        if (!match) {
+            // Create the job and make a note that it hasn't been running?
+        }
+    });
+
+    qj.forEach(async job => {
+        const match = dj.find(d => d.job_id === job.id);
+        if (!match) {
+            await jobQueue.removeRepeatableByKey(job.key);
+            console.log(dj, job.job_id);
+            console.log(`No match for ${job.id}. Removing from queue...`);
+        }
+    });
 }
 
 // Edit an existing job, then remove + re-add job to queue
@@ -84,11 +114,17 @@ async function writeJob(obj) {
     return job;
 }
 
-async function writeResult(job_id, started, count, data, error) {
+async function writeResult(jobId, started, count, data, error) {
     const finished = new Date();
+    const job_id = jobId.replace("-first", "");
 
     // Look up last result
     const last = await knex("jobs").where({job_id}).first().select("last_result");
+    if (!last) {
+        console.log(`Missing entry for ${job_id}.  Re-syncing...`);
+        await sync();
+        return;
+    }
     const lastResult = last.last_result;
     const thisResult = data;
     const changed = !lastResult || lastResult !== thisResult;
@@ -160,4 +196,5 @@ module.exports = {
     writeResult,
     getResults,
     getResult,
+    sync,
 };

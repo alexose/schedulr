@@ -9,16 +9,7 @@ const db = require("./db");
 const socket = require("./socket");
 const broadcast = socket.broadcast;
 
-/*
-jobQueue.clean(0, "delayed");
-jobQueue.clean(0, "wait");
-jobQueue.clean(0, "active");
-jobQueue.clean(0, "completed");
-jobQueue.clean(0, "failed");
-let multi = jobQueue.multi();
-multi.del(jobQueue.toKey('repeat'));
-multi.exec();
-*/
+db.sync();
 
 const server = http.createServer(app);
 
@@ -47,8 +38,13 @@ jobQueue.on("failed", function (job, err) {
 jobQueue.on("completed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
     const test = job?.data?.test;
+    const first = job?.id?.includes("-first");
+
     if (test) {
         broadcast({event: "test_completed", data: job});
+    } else if (first) {
+        const id = job.id.replace("-first", "");
+        broadcast({event: "job_completed", data: id});
     } else {
         broadcast({event: "job_completed", data});
     }
