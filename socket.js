@@ -25,4 +25,5 @@ function broadcast(obj) {
 module.exports = {
     init,
     broadcast,
+    wss,
 };

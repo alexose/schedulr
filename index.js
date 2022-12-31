@@ -35,21 +35,6 @@ jobQueue.on("failed", function (job, err) {
     }
 });
 
-jobQueue.on("completed", function (job, err) {
-    const data = job?.opts?.repeat?.jobId;
-    const test = job?.data?.test;
-    const first = job?.id?.includes("-first");
-
-    if (test) {
-        broadcast({event: "test_completed", data: job});
-    } else if (first) {
-        const id = job.id.replace("-first", "");
-        broadcast({event: "job_completed", data: id});
-    } else {
-        broadcast({event: "job_completed", data});
-    }
-});
-
 app.use(express.json());
 
 app.get("/api/", (req, res) => {

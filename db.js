@@ -1,5 +1,7 @@
 const jobQueue = require("./jobQueue.js");
 const jsonDiff = require("json-diff");
+const socket = require("./socket");
+const broadcast = socket.broadcast;
 
 const knex = require("knex")({
     client: "sqlite3",
@@ -136,19 +138,23 @@ async function writeResult(jobId, started, count, data, error) {
         await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
     }
 
+    const obj = {
+        data: changed ? thisResult : null,
+        error,
+        job_id,
+        count,
+        started,
+        finished,
+        diff,
+    };
+
     await knex("results")
-        .insert({
-            data: changed ? thisResult : null,
-            error,
-            job_id,
-            count,
-            started,
-            finished,
-            diff,
-        })
+        .insert(obj)
         .catch(e => {
             console.error(e);
         });
+
+    broadcast({event: "job_completed", data: obj});
 }
 
 function makeDiff(a, b) {

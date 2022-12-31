@@ -59,7 +59,7 @@ async function go() {
         else return 0;
     });
 
-    console.log(sorted[0][1]);
+    console.log(sorted[0]);
     browser.close();
 }
 
