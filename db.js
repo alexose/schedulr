@@ -46,10 +46,10 @@ knex.schema.hasTable("results").then(function (exists) {
 async function addJob(obj) {
     const {name, every, ...data} = obj;
     if (every) {
-        console.log(`Adding ${name}, repeating every ${every} seconds...`);
+        console.log(`Adding ${name}, repeating every ${every} minutes...`);
 
         // Add job to queue, but also run immediately
-        await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000}});
+        await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000 * 60}});
         await jobQueue.add(data, {jobId: name + "-first"});
 
         // Record job in database
