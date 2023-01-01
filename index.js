@@ -35,6 +35,14 @@ jobQueue.on("failed", function (job, err) {
     }
 });
 
+jobQueue.on("completed", function (result, err) {
+    if (result.data.test) {
+        broadcast({event: "test_completed", data: result});
+    } else {
+        broadcast({event: "job_completed", data: result});
+    }
+});
+
 app.use(express.json());
 
 app.get("/api/", (req, res) => {

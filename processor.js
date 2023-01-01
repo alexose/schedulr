@@ -16,21 +16,26 @@ module.exports = async function (job, done) {
     const started = new Date();
     const jobId = job.opts?.repeat?.jobId || job.id || 0;
     const count = job.opts?.repeat?.count || 0;
-    const test = job.opts?.test;
+    const isTest = job.data?.test;
+	let result;
+	let error;
 
     console.log("Running job " + jobId);
     try {
-        const result = await vm.run(job.data.code, "node_modules")();
-        console.log("Finished job " + jobId);
-
-        if (!test) {
-            await db.writeResult(jobId, started, count, result);
-        }
-        done(null, result);
-    } catch (error) {
-        if (!test) {
-            await db.writeResult(jobId, started, count, null, error);
-        }
-        done(error);
+        result = await vm.run(job.data.code, "node_modules")();
+    } catch (_error) {
+		result = null;
+		error = error;
     }
+	
+	console.log("Finished job " + jobId);
+    await finish(jobId, started, count, result, isTest, result, error);
+	done(error, result);
 };
+
+async function finish(jobId, started, count, isTest, result, error) {
+	if (!isTest) {
+		// TODO: split writeResult into writeResult and compareLastResult
+		await db.writeResult(jobId, started, count, result, error);
+	} 
+}

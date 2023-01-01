@@ -116,7 +116,7 @@ async function writeJob(obj) {
     return job;
 }
 
-async function writeResult(jobId, started, count, data, error) {
+async function writeResult(jobId, started, count, data, error, isTest) {
     const finished = new Date();
     const job_id = jobId.replace("-first", "");
 
@@ -154,7 +154,7 @@ async function writeResult(jobId, started, count, data, error) {
             console.error(e);
         });
 
-    broadcast({event: "job_completed", data: obj});
+    return;
 }
 
 function makeDiff(a, b) {
