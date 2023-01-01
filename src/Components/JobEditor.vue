@@ -1,7 +1,6 @@
 <script>
     import {VAceEditor} from "vue3-ace-editor";
     import SimpleSpinner from "./SimpleSpinner.vue";
-
     import examples from "../example-code.js";
 
     export default {
@@ -54,13 +53,37 @@
                 this.jobForm = false;
             },
             async testJob() {
+                const name = `${this.name || this.placeholder}-${+new Date()}`;
                 const obj = {
                     code: this.content,
-                    name: this.name || this.placeholder,
+                    name,
                 };
                 if (this.every) {
                     obj.every = this.every;
                 }
+
+                // Set up listeners
+                const failed = "test_failed_" + name;
+                const completed = "test_completed_" + name;
+
+                this.emitter.on(failed, obj => {
+                    if (obj.id === name) {
+                        this.testLoading = false;
+                        this.testResult = obj.returnvalue;
+                        this.emitter.off(completed);
+                        this.emitter.off(failed);
+                    }
+                });
+
+                this.emitter.on(completed, obj => {
+                    if (obj.id === name) {
+                        this.testLoading = false;
+                        this.testResult = obj.returnvalue;
+                        this.tested = true;
+                        this.emitter.off(completed);
+                        this.emitter.off(failed);
+                    }
+                });
 
                 this.testLoading = true;
                 await fetch("/api/testjob", {
@@ -71,7 +94,7 @@
                     body: JSON.stringify(obj),
                 });
                 // API will return the job list here.  We'll need to wait for the actual response
-                // to come through via the websocket.
+                // to come through via the websocket (see above).
             },
             makeRandomHash() {
                 // via https://stackoverflow.com/questions/1349404
@@ -111,15 +134,13 @@
             }
             return obj;
         },
-        mounted() {
-            this.emitter.on("test_failed", obj => {
-                this.testLoading = false;
-                this.testResult = obj.returnvalue;
-            });
-            this.emitter.on("test_completed", obj => {
-                this.testLoading = false;
-                this.testResult = obj.returnvalue;
-            });
+        watch: {
+            name: function (after, before) {
+                if (after !== before) this.tested = false;
+            },
+            content: function (after, before) {
+                if (after !== before) this.tested = false;
+            },
         },
     };
 </script>
@@ -165,6 +186,7 @@
         </div>
         <div class="job-form-option centered">
             <label></label>
+            <div v-if="tested">tested</div>
             <button type="submit" @click="saveJob">{{ submitText }}</button>
             <button type="submit" @click="testJob">Test Job</button>
             <div class="status" :class="{hidden: !testLoading}">

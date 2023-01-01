@@ -28,8 +28,8 @@ jobQueue.on("failed", function (job, err) {
     const data = job?.opts?.repeat?.jobId;
     const test = job?.data?.test;
     if (test) {
-        broadcast({event: "test_failed", data: job});
-        console.log(job);
+        console.log("test_failed_" + job.id);
+        broadcast({event: "test_failed_" + job.id, data: job});
     } else {
         broadcast({event: "job_failed", data});
     }
@@ -37,7 +37,8 @@ jobQueue.on("failed", function (job, err) {
 
 jobQueue.on("completed", function (result, err) {
     if (result.data.test) {
-        broadcast({event: "test_completed", data: result});
+        console.log("test_completed_" + result.id);
+        broadcast({event: "test_completed_" + result.id, data: result});
     } else {
         broadcast({event: "job_completed", data: result});
     }
@@ -90,12 +91,11 @@ app.post("/api/testjob", async (req, res) => {
     }
 
     const {name, every, ...data} = obj;
-    const testName = name + "-" + +new Date();
 
     data.test = true;
 
-    console.log(`Testing "${testName}"...`);
-    jobQueue.add(data, {jobId: testName});
+    console.log(`Testing "${name}"...`);
+    jobQueue.add(data, {jobId: name});
 
     const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);

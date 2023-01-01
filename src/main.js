@@ -9,6 +9,14 @@ import mitt from "mitt";
 
 const emitter = mitt();
 
+emitter.once = (type, handler) => {
+    const fn = (...args) => {
+        emitter.off(type, fn);
+        handler(args);
+    };
+    emitter.on(type, fn);
+};
+
 const routes = [
     {path: "/", component: Home},
     {path: "/about", component: About},
