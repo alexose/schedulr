@@ -55,7 +55,7 @@ async function addJob(obj) {
         // Record job in database
         await writeJob(obj);
     } else {
-        // One-off jobs don't get recorded, for now
+        // One-off jobs don't get recorded for now
         console.log(`Adding ${name} with no repeat...`);
         jobQueue.add(data, {jobId: name});
     }

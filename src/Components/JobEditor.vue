@@ -12,7 +12,6 @@
         },
         props: {
             job: Object,
-            editing: Boolean,
         },
         computed: {
             isCustom() {
@@ -92,7 +91,6 @@
         },
         data() {
             const {job} = this;
-            console.log(examples);
             const obj = {
                 name: "",
                 placeholder: "Job-" + this.makeRandomHash(),
@@ -101,7 +99,7 @@
                 jobForm: false,
                 testLoading: false,
                 testResult: "",
-                submitText: this.editing ? "Save Job" : "Add Job",
+                submitText: this.job ? "Save Job" : "Add Job",
                 selected: 0,
                 examples,
             };
