@@ -12,6 +12,7 @@
         },
         props: {
             job: Object,
+            editing: Boolean,
         },
         computed: {
             isCustom() {
@@ -100,7 +101,7 @@
                 jobForm: false,
                 testLoading: false,
                 testResult: "",
-                submitText: "Add Job",
+                submitText: this.editing ? "Save Job" : "Add Job",
                 selected: 0,
                 examples,
             };

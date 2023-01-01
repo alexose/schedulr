@@ -78,7 +78,7 @@
     <hr class="spacer" />
     <button @click="editJob()">Edit Job</button>
     <div class="job-editor" v-if="editing">
-        <JobEditor :job="job" />
+        <JobEditor :job="job" editing="true" />
     </div>
 </template>
 
