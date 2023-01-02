@@ -47,10 +47,7 @@ async function addJob(obj) {
     const {name, every, ...data} = obj;
     if (every) {
         console.log(`Adding ${name}, repeating every ${every} minutes...`);
-
-        // Add job to queue, but also run immediately
         await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000 * 60}});
-        await jobQueue.add(data, {jobId: name + "-first"});
 
         // Record job in database
         await writeJob(obj);
@@ -116,9 +113,9 @@ async function writeJob(obj) {
     return job;
 }
 
-async function writeResult(jobId, started, count, data, error, isTest) {
+async function writeResult(jobId, started, count, data, error) {
     const finished = new Date();
-    const job_id = jobId.replace("-first", "");
+    const job_id = jobId;
 
     // Look up last result
     const last = await knex("jobs").where({job_id}).first().select("last_result");

@@ -20,43 +20,19 @@
         },
         methods: {
             async saveJob() {
-                const obj = {
-                    code: this.content,
-                    name: this.name || this.placeholder,
-                };
-                if (this.every) {
-                    obj.every = this.every;
-                }
-
-                let response;
-                if (this.job) {
-                    response = await fetch("/api/jobs/" + this.job.job_id, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(obj),
-                    });
-                    this.emitter.emit("job_added", obj);
-                } else {
-                    response = await fetch("/api/jobs", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(obj),
-                    });
-                    this.emitter.emit("job_changed", obj);
-                }
-
-                await response.text();
-                this.jobForm = false;
+                // Kind of a roundabout way of doing this, but we never add a job without testing it first.
+                this.testJob(true, () => {
+                    this.jobForm = false;
+                });
             },
-            async testJob() {
-                const name = `${this.name || this.placeholder}-${+new Date()}`;
+            async testJob(persist, cb) {
+                const id = this.name || this.placeholder;
+                const name = persist ? id : id + "-" + +new Date();
                 const obj = {
                     code: this.content,
                     name,
+                    persist,
+                    test: true,
                 };
                 if (this.every) {
                     obj.every = this.every;
@@ -82,6 +58,9 @@
                         this.tested = true;
                         this.emitter.off(completed);
                         this.emitter.off(failed);
+                        if (typeof cb === "function") {
+                            cb();
+                        }
                     }
                 });
 
@@ -188,7 +167,7 @@
             <label></label>
             <div v-if="tested">tested</div>
             <button type="submit" @click="saveJob">{{ submitText }}</button>
-            <button type="submit" @click="testJob">Test Job</button>
+            <button type="submit" @click="testJob(false)">Test Job</button>
             <div class="status" :class="{hidden: !testLoading}">
                 <SimpleSpinner />
             </div>

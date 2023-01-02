@@ -90,14 +90,26 @@ app.post("/api/testjob", async (req, res) => {
         return;
     }
 
-    const {name, every, ...data} = obj;
+    const {name, every, persist, ...data} = obj;
 
-    data.test = true;
+    data.test = persist ? false : true;
 
-    console.log(`Testing "${name}"...`);
+    console.log(`${persist ? "Attempting to add" : "Testing"} "${name}"...`);
+
+    let jobs;
+    if (persist) {
+        const job = {
+            name,
+            every,
+            persist,
+            ...data,
+        };
+        const jobs = await db.addJob(job);
+    } else {
+        const jobs = await jobQueue.getRepeatableJobs();
+    }
+
     jobQueue.add(data, {jobId: name});
-
-    const jobs = await jobQueue.getRepeatableJobs();
     res.send(jobs);
 });
 
