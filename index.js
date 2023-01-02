@@ -9,8 +9,6 @@ const db = require("./db");
 const socket = require("./socket");
 const broadcast = socket.broadcast;
 
-db.sync();
-
 const server = http.createServer(app);
 
 jobQueue.process(path.join(__dirname, "./processor.js"));
@@ -134,4 +132,5 @@ socket.init(server);
 
 server.listen(port, () => {
     console.log(`Schedulr listening on port ${port}`);
+    db.sync();
 });

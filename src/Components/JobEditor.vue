@@ -38,6 +38,9 @@
                     },
                     body: JSON.stringify(obj),
                 });
+
+                // reload jobs
+                this.emitter.emit("job_added");
                 this.jobForm = false;
             },
             async testJob() {

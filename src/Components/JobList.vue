@@ -38,8 +38,8 @@
                 <td>
                     <RouterLink :to="'/jobs/' + job.job_id">{{ job.job_id }}</RouterLink>
                 </td>
-                <td>{{ job.lastResult?.count }}</td>
-                <td>{{ new Date(job.lastResult?.finished).toLocaleDateString() }}</td>
+                <td>{{ job.run_count }}</td>
+                <td>{{ new Date(job.last_run).toLocaleString() }}</td>
                 <td class="job-list-lastresult">{{ job.last_result }}</td>
                 <td class="job-list-controls">
                     <button class="job-list-delete" @click="deleteJob(job.job_id)">X</button>

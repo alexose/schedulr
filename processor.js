@@ -17,7 +17,6 @@ module.exports = async function (job, done) {
     const jobId = job.opts?.repeat?.jobId || job.id || 0;
     const count = job.opts?.repeat?.count || 0;
     const isTest = job.data?.test;
-    const persist = job.data?.persist || !isTest;
     let result;
     let error;
 
@@ -30,13 +29,10 @@ module.exports = async function (job, done) {
     }
 
     console.log("Finished job " + jobId);
-    await finish(jobId, started, count, result, persist, result, error);
+    await finish(jobId, started, count, result, error);
     done(error, result);
 };
 
-async function finish(jobId, started, count, persist, result, error) {
-    if (persist) {
-        // TODO: split writeResult into writeResult and compareLastResult maybe
-        await db.writeResult(jobId, started, count, result, error);
-    }
+async function finish(jobId, started, count, result, error) {
+    await db.writeResult(jobId, started, count, result, error);
 }

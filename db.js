@@ -19,6 +19,7 @@ knex.schema.hasTable("jobs").then(function (exists) {
             t.string("job_id");
             t.string("code");
             t.integer("every");
+            t.integer("run_count").notNullable().defaultTo(0);
             t.datetime("last_run");
             t.datetime("last_change");
             t.string("last_result");
@@ -45,6 +46,7 @@ knex.schema.hasTable("results").then(function (exists) {
 // Add a job to the database and ensure that job is added to the queue
 async function addJob(obj) {
     // Begin by running job and seeing if it errors
+    const started = +new Date();
     const firstRun = await runJob(obj);
 
     if (firstRun.error) {
@@ -58,6 +60,9 @@ async function addJob(obj) {
 
     // Record job in database
     await writeJob(obj);
+
+    // Record first result in database
+    await writeResult(name, started, 1, firstRun.result, null);
 
     return firstRun.result;
 }
@@ -77,6 +82,11 @@ async function runJob(obj) {
 // If we find a job that exists in the DB but not in the queue, we create it.
 // Vise versa, we delete it.
 async function sync() {
+    // Don't sync if we haven't set up our tables yet
+    const hasJobs = await knex.schema.hasTable("jobs");
+    const hasResults = await knex.schema.hasTable("jobs");
+    if (!hasJobs || !hasResults) return;
+
     const qj = await jobQueue.getRepeatableJobs();
 
     // TODO: turn this into a stream
@@ -92,7 +102,6 @@ async function sync() {
         const match = dj.find(d => d.job_id === job.id);
         if (!match) {
             await jobQueue.removeRepeatableByKey(job.key);
-            console.log(dj, job.job_id);
             console.log(`No match for ${job.id}. Removing from queue...`);
         }
     });
@@ -135,16 +144,19 @@ async function writeResult(jobId, started, count, data, error) {
 
     // Look up last result, if applicable
     const last = await knex("jobs").where({job_id}).first().select("last_result");
-    if (last) {
+    if (last && last.last_result) {
         const lastResult = last.last_result;
         const changed = !lastResult || lastResult !== thisResult;
 
         if (changed) {
             console.log(`Detected change for ${job_id}!`);
             diff = makeDiff(lastResult, thisResult);
-            await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
+            await knex("jobs").where({job_id}).update({last_change: finished});
         }
     }
+
+    await knex("jobs").where({job_id}).update({last_run: finished, last_result: data});
+    await knex("jobs").where({job_id}).increment("run_count");
 
     const obj = {
         data: changed ? thisResult : null,
