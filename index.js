@@ -38,7 +38,7 @@ jobQueue.on("completed", function (result, err) {
         console.log("test_completed_" + result.id);
         broadcast({event: "test_completed_" + result.id, data: result});
     } else {
-        broadcast({event: "job_completed", data: result});
+        broadcast({event: "job_completed", data: result?.opts?.repeat?.jobId});
     }
 });
 
