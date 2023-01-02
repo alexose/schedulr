@@ -64,8 +64,8 @@ app.post("/api/jobs", async (req, res) => {
         return;
     }
 
-    const jobs = await db.addJob(obj);
-    res.send(jobs);
+    const result = await db.addJob(obj);
+    res.send(result);
 });
 
 app.put("/api/jobs/:id", async (req, res) => {
@@ -90,27 +90,14 @@ app.post("/api/testjob", async (req, res) => {
         return;
     }
 
-    const {name, every, persist, ...data} = obj;
+    const {name, every, ...data} = obj;
+    data.test = true;
+    console.log(`Testing "${name}"...`);
 
-    data.test = persist ? false : true;
+    const job = await jobQueue.add(data, {jobId: name});
+    const result = await job.finished();
 
-    console.log(`${persist ? "Attempting to add" : "Testing"} "${name}"...`);
-
-    let jobs;
-    if (persist) {
-        const job = {
-            name,
-            every,
-            persist,
-            ...data,
-        };
-        const jobs = await db.addJob(job);
-    } else {
-        const jobs = await jobQueue.getRepeatableJobs();
-    }
-
-    jobQueue.add(data, {jobId: name});
-    res.send(jobs);
+    res.send(result);
 });
 
 app.get("/api/results", async (req, res) => {

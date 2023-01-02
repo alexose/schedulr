@@ -44,21 +44,33 @@ knex.schema.hasTable("results").then(function (exists) {
 
 // Add a job to the database and ensure that job is added to the queue
 async function addJob(obj) {
-    const {name, every, ...data} = obj;
-    if (every) {
-        console.log(`Adding ${name}, repeating every ${every} minutes...`);
-        await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000 * 60}});
+    // Begin by running job and seeing if it errors
+    const firstRun = await runJob(obj);
 
-        // Record job in database
-        await writeJob(obj);
-    } else {
-        // One-off jobs don't get recorded for now
-        console.log(`Adding ${name} with no repeat...`);
-        jobQueue.add(data, {jobId: name});
+    if (firstRun.error) {
+        return {error};
     }
 
-    const jobs = await jobQueue.getRepeatableJobs();
-    return jobs;
+    // If it didn't error out, we're ready to add the 'repeatable' job
+    const {name, every, ...data} = obj;
+    console.log(`Adding ${name}, repeating every ${every} minutes...`);
+    await jobQueue.add(data, {jobId: name, repeat: {every: every * 1000 * 60}});
+
+    // Record job in database
+    await writeJob(obj);
+
+    return firstRun.result;
+}
+
+// Run job immediately, record the results, and also return them
+async function runJob(obj) {
+    return new Promise(async (resolve, reject) => {
+        const {name, every, ...data} = obj;
+
+        const job = await jobQueue.add(data, {jobId: name});
+        const result = await job.finished();
+        resolve({result});
+    });
 }
 
 // Sync database with queue.  Our strategy here is that the database is the source of truth.
@@ -116,23 +128,22 @@ async function writeJob(obj) {
 async function writeResult(jobId, started, count, data, error) {
     const finished = new Date();
     const job_id = jobId;
-
-    // Look up last result
-    const last = await knex("jobs").where({job_id}).first().select("last_result");
-    if (!last) {
-        console.log(`Missing entry for ${job_id}.  Re-syncing...`);
-        await sync();
-        return;
-    }
-    const lastResult = last.last_result;
-    const thisResult = data;
-    const changed = !lastResult || lastResult !== thisResult;
+    let changed;
+    let lastResult;
     let diff;
+    const thisResult = data;
 
-    if (changed) {
-        console.log(`Detected change for ${job_id}!`);
-        diff = makeDiff(lastResult, thisResult);
-        await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
+    // Look up last result, if applicable
+    const last = await knex("jobs").where({job_id}).first().select("last_result");
+    if (last) {
+        const lastResult = last.last_result;
+        const changed = !lastResult || lastResult !== thisResult;
+
+        if (changed) {
+            console.log(`Detected change for ${job_id}!`);
+            diff = makeDiff(lastResult, thisResult);
+            await knex("jobs").where({job_id}).update({last_result: thisResult, last_change: finished});
+        }
     }
 
     const obj = {

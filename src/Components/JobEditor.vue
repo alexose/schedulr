@@ -20,60 +20,47 @@
         },
         methods: {
             async saveJob() {
-                // Kind of a roundabout way of doing this, but we never add a job without testing it first.
-                this.testJob(true, () => {
-                    this.jobForm = false;
-                });
-            },
-            async testJob(persist, cb) {
                 const id = this.name || this.placeholder;
-                const name = persist ? id : id + "-" + +new Date();
+                const name = id;
                 const obj = {
                     code: this.content,
                     name,
-                    persist,
-                    test: true,
                 };
                 if (this.every) {
                     obj.every = this.every;
                 }
 
-                // Set up listeners
-                const failed = "test_failed_" + name;
-                const completed = "test_completed_" + name;
-
-                this.emitter.on(failed, obj => {
-                    if (obj.id === name) {
-                        this.testLoading = false;
-                        this.testResult = obj.returnvalue;
-                        this.emitter.off(completed);
-                        this.emitter.off(failed);
-                    }
-                });
-
-                this.emitter.on(completed, obj => {
-                    if (obj.id === name) {
-                        this.testLoading = false;
-                        this.testResult = obj.returnvalue;
-                        this.tested = true;
-                        this.emitter.off(completed);
-                        this.emitter.off(failed);
-                        if (typeof cb === "function") {
-                            cb();
-                        }
-                    }
-                });
-
                 this.testLoading = true;
-                await fetch("/api/testjob", {
+                await fetch("/api/jobs", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(obj),
                 });
-                // API will return the job list here.  We'll need to wait for the actual response
-                // to come through via the websocket (see above).
+                this.jobForm = false;
+            },
+            async testJob() {
+                const id = this.name || this.placeholder;
+                const name = id + "-" + +new Date();
+                const obj = {
+                    code: this.content,
+                    name,
+                };
+                if (this.every) {
+                    obj.every = this.every;
+                }
+
+                this.testLoading = true;
+                const response = await fetch("/api/testjob", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(obj),
+                });
+                this.testResult = await response.json();
+                this.testLoading = false;
             },
             makeRandomHash() {
                 // via https://stackoverflow.com/questions/1349404
