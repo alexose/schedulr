@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const port = 3000;
+const port = 3001;
 const config = require("./config.js");
 const jobQueue = require("./jobQueue.js");
 const path = require("path");
@@ -43,6 +43,7 @@ jobQueue.on("completed", function (result, err) {
 });
 
 app.use(express.json());
+app.use(express.static(__dirname + "/dist"));
 
 app.get("/api/", (req, res) => {
     res.send("oh hi");

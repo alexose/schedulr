@@ -45,7 +45,8 @@
             this.emitter.on("job_deleted", this.refresh);
             this.emitter.on("*", (type, e) => console.log(type, e));
 
-            const ws = new WebSocket("ws://localhost:8081/api");
+            const ws = new WebSocket(process.env.VUE_APP_WS_LOCATION);
+
             ws.onmessage = e => {
                 let obj;
                 try {
