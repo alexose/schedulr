@@ -195,10 +195,19 @@ async function getJob(job_id) {
     }
 }
 
-async function getResults(job_id) {
+async function getResults(job_id, filters) {
     let obj;
     if (job_id) {
-        obj = await knex("results").where({job_id}).select().limit(1000).orderBy("finished", "desc");
+        if (filters && filters.changes === true) {
+            obj = await knex("results")
+                .where({job_id})
+                .whereNotNull("diff")
+                .select()
+                .limit(1000)
+                .orderBy("finished", "desc");
+        } else {
+            obj = await knex("results").where({job_id}).select().limit(1000).orderBy("finished", "desc");
+        }
     } else {
         obj = await knex("results").select();
     }

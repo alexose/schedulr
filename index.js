@@ -112,8 +112,16 @@ app.get("/api/results/:id", async (req, res) => {
 
 app.get("/api/jobs/:id", async (req, res) => {
     const {id} = req.params;
+    const {json} = req.query;
+    let filters = null;
+
+    if (json) {
+        filters = JSON.parse(json);
+    }
+
     const job = await db.getJob(id);
-    const results = await db.getResults(id);
+    const results = await db.getResults(id, filters);
+
     res.send({job, results});
 });
 

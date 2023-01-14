@@ -1,11 +1,13 @@
 <script>
     import JobEditor from "../Components/JobEditor.vue";
+    import FilterBar from "../Components/FilterBar.vue";
     import AnsiToHtml from "ansi-to-html";
 
     export default {
         name: "JobPage",
         components: {
             JobEditor,
+            FilterBar,
         },
         methods: {
             convert(str) {
@@ -27,6 +29,22 @@
             editJob() {
                 this.editing = true;
             },
+            updateFilters(obj) {
+                // TODO: determine active states
+                this.filters = obj;
+                this.refresh();
+            },
+            async refresh() {
+                let url = `/api/jobs/${this.id}`;
+                if (this.filters) {
+                    url += `?json=${encodeURIComponent(JSON.stringify(this.filters))}`;
+                }
+
+                const jobsResponse = await fetch(url);
+                const obj = await jobsResponse.json();
+                this.results = obj.results;
+                this.job = obj.job;
+            },
         },
         data() {
             return {
@@ -34,23 +52,18 @@
                 job: {},
                 id: this.$route.params.id,
                 editing: false,
+                filters: null,
             };
         },
-        async mounted() {
-            const jobsResponse = await fetch(`/api/jobs/${this.id}`);
-            const obj = await jobsResponse.json();
-            this.results = obj.results;
-            this.job = obj.job;
-            console.log(obj);
+        mounted() {
+            this.refresh();
         },
     };
 </script>
 
 <template>
     <RouterLink to="/">« Back to Jobs List</RouterLink>
-    <div>
-        <h2>Results for {{ id }}:</h2>
-    </div>
+    <FilterBar @updateFilters="updateFilters" />
     <table class="results-table">
         <thead>
             <th class="results-table-date">Date</th>
