@@ -73,4 +73,26 @@ module.exports = async function () {
 }`,
 };
 
-module.exports = [example1, example2, example3];
+const example4 = {
+    name: "Example Four: dirty-json",
+    content: `/*
+ * This example uses the dirty-json library to parse JSON that doesn't conform to the exact specs. 
+ *
+ */
+
+const fetch = require("node-fetch");
+const dJSON = require("dirty-json");
+const url = "https://greatdealsnv.com/products/neptune3?_pos=1&_sid=d2ea4fa35&variant=42505462546584";
+
+module.exports = async function () {
+    const response = await fetch(url);
+    const fullText = await response.text();
+    const str = fullText.split('\n').filter(d => d.includes('productSingleObject'))[0];
+    const json = str.substring(str.indexOf('{'), str.lastIndexOf('}'));
+    const data = dJSON.parse(json);
+    const variant = data.variants.find(d => d.id == 42505462579352)
+    return { available: variant.available };
+}`,
+};
+
+module.exports = [example1, example2, example3, example4];
