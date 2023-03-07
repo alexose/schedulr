@@ -5,7 +5,7 @@ const db = require("./db");
 const vm = new NodeVM({
     require: {
         external: {
-            modules: ["puppeteer", "node-fetch"],
+            modules: ["puppeteer", "node-fetch", "dirty-json"],
         },
         root: [__dirname],
         wrapper: "none",
@@ -25,7 +25,7 @@ module.exports = async function (job, done) {
         result = await vm.run(job.data.code, "node_modules")();
     } catch (_error) {
         result = null;
-        error = error;
+        error = _error;
     }
 
     console.log("Finished job " + jobId);
