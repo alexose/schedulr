@@ -43,7 +43,6 @@ jobQueue.on("completed", function (result, err) {
 });
 
 app.use(express.json());
-app.use(express.static(__dirname + "/dist"));
 
 app.get("/api/", (req, res) => {
     res.send("oh hi");
@@ -131,6 +130,9 @@ app.delete("/api/jobs/:id", async (req, res) => {
     await broadcastJobs();
     res.send(result);
 });
+
+app.use("/", express.static(__dirname + "/dist"));
+app.use("/*", express.static(__dirname + "/dist"));
 
 async function broadcastJobs() {
     const jobs = await jobQueue.getRepeatableJobs();
