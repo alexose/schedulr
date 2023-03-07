@@ -87,7 +87,7 @@ const url = "https://greatdealsnv.com/products/neptune3?_pos=1&_sid=d2ea4fa35&va
 module.exports = async function () {
     const response = await fetch(url);
     const fullText = await response.text();
-    const str = fullText.split('\n').filter(d => d.includes('productSingleObject'))[0];
+    const str = fullText.split('\\n').filter(d => d.includes('productSingleObject'))[0];
     const json = str.substring(str.indexOf('{'), str.lastIndexOf('}'));
     const data = dJSON.parse(json);
     const variant = data.variants.find(d => d.id == 42505462579352)

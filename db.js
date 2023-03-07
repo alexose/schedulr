@@ -19,6 +19,7 @@ knex.schema.hasTable("jobs").then(function (exists) {
             t.string("job_id");
             t.string("code");
             t.integer("every");
+            t.boolean("notification");
             t.integer("run_count").notNullable().defaultTo(0);
             t.datetime("last_run");
             t.datetime("last_change");
@@ -61,6 +62,8 @@ async function addJob(obj) {
     // Record job in database
     await writeJob(obj);
 
+    console.log(obj);
+
     // Record first result in database
     await writeResult(name, started, 1, firstRun.result, null);
 
@@ -70,7 +73,8 @@ async function addJob(obj) {
 // Run job immediately, record the results, and also return them
 async function runJob(obj) {
     return new Promise(async (resolve, reject) => {
-        const {name, every, ...data} = obj;
+        const {name, every, notification, ...data} = obj;
+        console.log(data, notification);
 
         const job = await jobQueue.add(data, {jobId: name});
         const result = await job.finished();

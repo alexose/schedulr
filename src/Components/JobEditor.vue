@@ -29,6 +29,9 @@
                 if (this.every) {
                     obj.every = this.every;
                 }
+                if (this.notification) {
+                    obj.notification = this.notification;
+                }
 
                 this.testLoading = true;
                 await fetch("/api/jobs", {
@@ -88,6 +91,7 @@
                 placeholder: "Job-" + this.makeRandomHash(),
                 content: examples[0].content,
                 every: "5",
+                notification: false,
                 jobForm: false,
                 testLoading: false,
                 testResult: "",
@@ -146,6 +150,10 @@
                 <div class="job-form-option job-form-option-advanced">
                     <input type="checkbox" id="diffs" name="diffs" />
                     <label class="pointer" for="diffs">Store full results regardless of changes</label>
+                </div>
+                <div class="job-form-option job-form-option-advanced">
+                    <input type="checkbox" id="notification" name="notification" />
+                    <label class="pointer" for="notification">Notify me on change</label>
                 </div>
                 <div class="job-form-option job-form-option-advanced">
                     <input class="job-form-input-small" type="text" id="timeout" name="timeout" placeholder="5" />
