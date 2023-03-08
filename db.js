@@ -149,7 +149,7 @@ async function writeResult(jobId, started, count, data, error) {
     // Look up last result, if applicable
     const last = await knex("jobs").where({job_id}).first().select("last_result");
     if (last && last.last_result) {
-        const lastResult = last.last_result;
+        const lastResult = JSON.parse(last.last_result);
         const changed = !lastResult || lastResult !== thisResult;
 
         if (changed) {
@@ -159,7 +159,9 @@ async function writeResult(jobId, started, count, data, error) {
         }
     }
 
-    await knex("jobs").where({job_id}).update({last_run: finished, last_result: data});
+    await knex("jobs")
+        .where({job_id})
+        .update({last_run: finished, last_result: JSON.stringify(data)});
     await knex("jobs").where({job_id}).increment("run_count");
 
     const obj = {
