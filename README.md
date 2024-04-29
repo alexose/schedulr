@@ -53,7 +53,7 @@ Gets a specific job and its results. By default, this will be limited to the las
 
 Create a new job.
 
-````{
+```{
     code: "return {{last}} + 1",
     frequency: "1m",
 }```
