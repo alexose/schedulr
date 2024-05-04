@@ -3,6 +3,8 @@ const jsonDiff = require("json-diff");
 const socket = require("./socket");
 const broadcast = socket.broadcast;
 
+var Push = require("pushover-notifications");
+
 const knex = require("knex")({
     client: "sqlite3",
     useNullAsDefault: true,
@@ -149,17 +151,40 @@ async function writeResult(jobId, started, count, data, error) {
     // Look up last result, if applicable
     const last = await knex("jobs").where({job_id}).first().select("last_result");
     if (last && last.last_result) {
-        const lastResult = last.last_result;
+        const lastResult = JSON.parse(last.last_result);
         const changed = !lastResult || lastResult !== thisResult;
 
         if (changed) {
             console.log(`Detected change for ${job_id}!`);
+
+            var p = new Push({
+                user: "unsryrfdd4oppux5t1xy7dpo4ze2u4",
+                token: "ae7jcwauw8it4pia7d3risz3xk75qc",
+                onerror: function (error) {
+                    console.log(error);
+                },
+                update_sounds: true, // update the list of sounds every day - will prevent app from exiting.
+            });
+            var msg = {
+                message: `Detected change for ${job_id}!`, // required
+                title: "Change detection",
+                priority: 0,
+            };
+            p.send(msg, function (err, result) {
+                if (err) {
+                    throw err;
+                }
+                console.log(result);
+            });
+
             diff = makeDiff(lastResult, thisResult);
             await knex("jobs").where({job_id}).update({last_change: finished});
         }
     }
 
-    await knex("jobs").where({job_id}).update({last_run: finished, last_result: data});
+    await knex("jobs")
+        .where({job_id})
+        .update({last_run: finished, last_result: JSON.stringify(data)});
     await knex("jobs").where({job_id}).increment("run_count");
 
     const obj = {
@@ -183,6 +208,7 @@ async function writeResult(jobId, started, count, data, error) {
 
 function makeDiff(a, b) {
     try {
+        console.log(a, b);
         const a1 = JSON.parse(a);
         const b1 = JSON.parse(b);
         return jsonDiff.diffString(a1, b1);
