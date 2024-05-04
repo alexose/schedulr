@@ -4,8 +4,11 @@
         name: "ResultPage",
         methods: {
             convert(str) {
-                const converter = new AnsiToHtml({newline: true, fg: "#000", bg: "#FFF"});
-                return converter.toHtml(str);
+                if (str) {
+                    const converter = new AnsiToHtml({newline: true, fg: "#000", bg: "#FFF"});
+                    return converter.toHtml(str);
+                }
+                return "No result available.";
             },
         },
         data() {
