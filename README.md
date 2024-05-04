@@ -16,7 +16,7 @@ for future analysis.
     npm install
     cp config.js.example config.js
     <edit config.js as you see fit>
-    npm run start
+    npm run serve 
 
 ## Usage
 
