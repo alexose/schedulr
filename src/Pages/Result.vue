@@ -4,8 +4,11 @@
         name: "ResultPage",
         methods: {
             convert(str) {
-                const converter = new AnsiToHtml({newline: true, fg: "#000", bg: "#FFF"});
-                return converter.toHtml(str);
+                if (str) {
+                    const converter = new AnsiToHtml({newline: true, fg: "#000", bg: "#FFF"});
+                    return converter.toHtml(str);
+                }
+                return "No result available.";
             },
         },
         data() {
@@ -20,6 +23,7 @@
             const response = await fetch(`/api/results/${this.result_id}`);
             const obj = await response.json();
             this.result = obj;
+            console.log(obj);
             this.diff = this.convert(obj.diff);
         },
     };
