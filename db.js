@@ -150,7 +150,7 @@ async function writeResult(jobId, started, count, data, error) {
     const last = await knex("jobs").where({job_id}).first().select("last_result");
     if (last && last.last_result) {
         const lastResult = JSON.parse(last.last_result);
-        const changed = !lastResult || lastResult !== thisResult;
+        changed = !lastResult || lastResult !== thisResult;
 
         if (changed) {
             console.log(`Detected change for ${job_id}!`);
